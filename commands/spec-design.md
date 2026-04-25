@@ -46,6 +46,7 @@ Read into main context:
 - Existing ADRs under `.sdlc/specs/<capability>/decisions/` and `.sdlc/decisions/` so the design doesn't contradict prior decisions
 - **Project-wide steering** under `.sdlc/steering/`: read `product.md` (project goals + value), `structure.md` (module layout + conventions), `tech.md` (stack + constraints). Skip files that don't exist or contain only template placeholder text — those are unpopulated.
 - **Brief-writing guideline:** read `${CLAUDE_PLUGIN_ROOT}/guidelines/durable-briefs.md` before drafting — its rules apply to `## Approach`, `## File Structure Plan`, and `## Risks`.
+- `.sdlc/changes/<slug>/findings.md` if present. Open `DESIGN-GAP` findings drive the constraints interview in Step 3.5 — turn each into a targeted question before asking the generic ones.
 
 ### Optional — dispatch a subagent for codebase survey
 

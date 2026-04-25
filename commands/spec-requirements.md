@@ -25,6 +25,7 @@ Read into context:
 - Every `.sdlc/changes/<slug>/specs/*/delta.md` (may be zero — that's fine).
 - For each capability already touched: `.sdlc/specs/<capability>/spec.md` and `.sdlc/specs/<capability>/GLOSSARY.md` (for slug resolution and term references). These may not yet exist for newly-introduced capabilities.
 - `.sdlc/steering/*.md` if present (project-wide context).
+- `.sdlc/changes/<slug>/findings.md` if present. Open `SPEC-GAP` findings drive the interview in Step 3 — turn each into a targeted question before asking the generic ones.
 
 ## Step 3 — Interview (always-on)
 

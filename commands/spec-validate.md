@@ -104,7 +104,7 @@ validation.md:               written (<N> rows)
 Next:
   - Tasks unticked: run /spec-impl-task <id> for each. Auto-ticks rows whose tests pass.
   - Tasks ticked, rows empty: fill _Evidence:_ (manual rows need _Approved:_).
-  - All rows green: ready for /spec-archive.
+  - All rows green: run /spec-review to audit before /spec-archive.
 ```
 
 If stale rows remain unresolved (user deferred decisions), write **nothing** and report:

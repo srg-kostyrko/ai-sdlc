@@ -39,6 +39,7 @@ Read:
 - `.sdlc/changes/<slug>/design.md` `## Approach` and `## File Structure Plan`.
 - Existing `.sdlc/changes/<slug>/validation.md` — to know which rows correspond to this task's requirements.
 - Living `.sdlc/specs/<cap>/spec.md` for any MODIFIED slug (so you understand current behavior before modifying).
+- `.sdlc/changes/<slug>/findings.md` if present. Surface any open `FIX-BUG` or `FIX-MISMATCH` findings whose `req-slug` is in this task's `_Requirements:_` — these are the issues `/spec-review` flagged for this slice; address them as part of this re-implementation.
 
 ## Step 4 — Implement the slice
 

@@ -24,6 +24,9 @@ Refuse unless ALL hold. Print specific failures and stop on miss. There is **no 
 4. Every row in `validation.md` has a non-empty `_Evidence:_` line.
 5. Every row whose `_Evidence:_` starts with `manual` has an `_Approved:_` line below it with author + date.
 6. No `<!-- TODO -->` markers anywhere in `proposal.md`, `design.md`, `tasks.md`, `validation.md`, or any `delta.md`.
+7. `.sdlc/changes/<slug>/findings.md` exists with a `## Verdict` block.
+8. `## Verdict` shows `Result: GO`.
+9. The verdict's `Head ref:` value equals the current `git rev-parse HEAD`. (If commits or uncommitted changes have landed since the last review, re-run `/spec-review` to refresh the verdict.)
 
 ## Step 3 — Slug-presence sanity check (per delta)
 
