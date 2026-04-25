@@ -70,7 +70,7 @@ Adapt `templates/delta.md`:
   - Slug: prefix `req-` + dashed-lowercased-title.
   - `**Why:**` one line, usually mirrors `proposal.md`'s Why.
   - If the description is behavioral, write a `#### Scenario:` skeleton with `WHEN`/`THEN`, using `[[term-slug]]` markup for domain terms (define the terms in `## ADDED Terms` below).
-  - If the description is an invariant, write a `#### Criteria` bullet.
+  - If the description is an invariant, write a `#### Criteria` bullet in EARS-Ubiquitous form: `The [System] shall [action]` with an explicit subject.
 - In `## ADDED Terms`: if any `[[term-slug]]` was introduced, draft a stub term entry with `**Definition:**` and `**Notes:**` (use `<!-- TODO -->` for parts you cannot fill confidently).
 - Keep `## MODIFIED Requirements`, `## REMOVED Requirements`, `## MODIFIED Terms`, `## REMOVED Terms` as the template's empty placeholder blocks.
 

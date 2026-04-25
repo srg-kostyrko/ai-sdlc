@@ -15,7 +15,7 @@
 - THEN observable outcome
 
 #### Criteria
-- invariant statement
+- The [System] shall [action]   (EARS-Ubiquitous form: explicit subject + shall + action; avoid passive voice)
 -->
 
 ## MODIFIED Requirements

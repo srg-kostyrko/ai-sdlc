@@ -58,9 +58,10 @@ Run the mechanical checks first (no judgment), then the judgment checks. Repair 
 ### Judgment checks (apply after mechanical pass)
 
 1. Each scenario is specific, observable, testable. Reject vague verbs ("supports X", "handles Y") without a measurable outcome.
-2. Each requirement's `**Why:**` ties back to `proposal.md ## Why` or `## What Changes` — not a freestanding rationale.
-3. Per-capability deltas are coherent: every term appearing in a scenario is either pre-existing or has a corresponding entry in `## ADDED Terms`; no orphan terms.
-4. `proposal.md ## What Changes` lists at least one item that maps to each capability whose delta is non-empty (no silent capability touches).
+2. Each `#### Criteria` bullet follows EARS-Ubiquitous form: `The [System] shall [action]`. Reject passive voice ("Recovery codes are hashed") and implicit subjects ("Logging happens") — restate in shall-form ("The Auth Service shall hash recovery codes"). The system name must be explicit.
+3. Each requirement's `**Why:**` ties back to `proposal.md ## Why` or `## What Changes` — not a freestanding rationale.
+4. Per-capability deltas are coherent: every term appearing in a scenario is either pre-existing or has a corresponding entry in `## ADDED Terms`; no orphan terms.
+5. `proposal.md ## What Changes` lists at least one item that maps to each capability whose delta is non-empty (no silent capability touches).
 
 ### Repair loop
 

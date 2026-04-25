@@ -22,5 +22,7 @@
 - AND further outcome
 
 #### Criteria
-- invariant statement (no WHEN/THEN — pure property)
+- The [System] shall [action]   (EARS-Ubiquitous form: explicit subject + shall + action)
+- The Auth Service shall store TOTP secrets encrypted with the per-tenant KMS key.
+- (avoid passive voice or implicit subject — "Recovery codes are hashed" → "The Auth Service shall hash recovery codes")
 -->
