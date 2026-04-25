@@ -1,7 +1,7 @@
 # Delta — {{CAPABILITY}}
 
 <!-- Describes the change to the {{CAPABILITY}} living spec + glossary. -->
-<!-- On /spec-archive, these blocks merge mechanically into specs/{{CAPABILITY}}/spec.md and GLOSSARY.md. -->
+<!-- On /ai-sdlc:spec-archive, these blocks merge mechanically into specs/{{CAPABILITY}}/spec.md and GLOSSARY.md. -->
 <!-- Slug rules: lowercase-dash; set at creation; never change. Titles may drift; slugs cannot. -->
 
 ## ADDED Requirements

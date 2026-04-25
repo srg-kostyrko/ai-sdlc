@@ -16,7 +16,7 @@ User input: $ARGUMENTS
   - If exactly one folder exists under `.sdlc/changes/` (excluding `archive/`), use it.
   - Otherwise list the active changes and ask.
 
-Pre-flight: the resolved folder must contain `proposal.md`. If not, suggest `/spec-propose`. The folder may have zero `specs/<capability>/delta.md` files right after `/spec-propose` — Step 4 seeds the first delta lazily.
+Pre-flight: the resolved folder must contain `proposal.md`. If not, suggest `/ai-sdlc:spec-propose`. The folder may have zero `specs/<capability>/delta.md` files right after `/ai-sdlc:spec-propose` — Step 4 seeds the first delta lazily.
 
 ## Step 2 — Read current state
 
@@ -147,7 +147,7 @@ proposal.md:                   clean
 specs/<cap>/delta.md:          clean (N requirements, M terms)
 specs/<cap>/delta.md:          clean (N requirements, M terms)
 Capabilities touched:          auth, notifications
-Ready for /spec-design.
+Ready for /ai-sdlc:spec-design.
 ```
 
 If Step 8 did not pass, write **nothing** and report:
@@ -156,7 +156,7 @@ If Step 8 did not pass, write **nothing** and report:
 Refinement halted with unresolved issues:
   - <issue 1, with file:line>
   - <issue 2, with file:line>
-Resolve and re-run /spec-requirements.
+Resolve and re-run /ai-sdlc:spec-requirements.
 ```
 
 ## Constraints
@@ -169,7 +169,7 @@ Resolve and re-run /spec-requirements.
 
 ## Error scenarios
 
-- **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/spec-propose`.
+- **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/ai-sdlc:spec-propose`.
 - **Multiple active changes (ambiguous).** `$ARGUMENTS` empty and >1 active change → list active slugs and ask.
 - **Slug clash.** A drafted ADDED slug collides with an existing slug (living spec OR another delta in this change) → pick a different slug; if the user has a preferred name, ask.
 - **MODIFIED/REMOVED of a non-existent slug.** Living spec doesn't have the targeted slug → reclassify as ADDED, or drop.

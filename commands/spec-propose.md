@@ -1,5 +1,5 @@
 ---
-description: Start a new change proposal. Asks one question (the problem), derives a slug, and creates .sdlc/changes/<slug>/ with a proposal stub plus design/tasks skeletons. No capability delta is created — that happens lazily in `/spec-requirements` when the first requirement is added.
+description: Start a new change proposal. Asks one question (the problem), derives a slug, and creates .sdlc/changes/<slug>/ with a proposal stub plus design/tasks skeletons. No capability delta is created — that happens lazily in `/ai-sdlc:spec-requirements` when the first requirement is added.
 argument-hint: ["<one-line seed>"]
 ---
 
@@ -15,7 +15,7 @@ No slug is taken from arguments. The slug is derived after the interview (Step 4
 
 ## Step 2 — Pre-flight
 
-- Verify `.sdlc/` exists at the working directory. If not: print `Run /sdlc-init first.` and stop.
+- Verify `.sdlc/` exists at the working directory. If not: print `Run /ai-sdlc:sdlc-init first.` and stop.
 
 (Slug-collision checks happen in Step 4, once a candidate exists.)
 
@@ -67,7 +67,7 @@ The user named a solution but not the underlying motivation. Help them surface i
 
 3. The user's selection (or rewrite) becomes `## Why`. Never auto-pick — the user must endorse the motivation.
 
-4. If the user rejects all candidates and still cannot articulate a motivation, stop and tell them `/spec-propose` needs a concrete motivation — do not seed `## Why` with a TODO.
+4. If the user rejects all candidates and still cannot articulate a motivation, stop and tell them `/ai-sdlc:spec-propose` needs a concrete motivation — do not seed `## Why` with a TODO.
 
 ## Step 4 — Propose change slug
 
@@ -95,7 +95,7 @@ If the user supplies an override: validate against the regex and re-run the coll
 .sdlc/changes/<slug>/
 ```
 
-(Do not create `specs/` or `decisions/` yet — both are seeded lazily: `specs/<capability>/` by `/spec-requirements` when the first requirement lands, `decisions/` when an ADR is drafted.)
+(Do not create `specs/` or `decisions/` yet — both are seeded lazily: `specs/<capability>/` by `/ai-sdlc:spec-requirements` when the first requirement lands, `decisions/` when an ADR is drafted.)
 
 ## Step 6 — Write skeleton
 
@@ -105,15 +105,15 @@ Read each template from `${CLAUDE_PLUGIN_ROOT}/templates/` (this plugin's `templ
 
 Adapt `templates/proposal.md`:
 - `## Why`: write the answer to Q1 (lightly cleaned for prose flow; do not add motivation the user did not state).
-- `## What Changes`, `## Scope`, `## Rollout`: leave the template's `<!-- TODO -->` markers untouched. `/spec-requirements` walks these next.
+- `## What Changes`, `## Scope`, `## Rollout`: leave the template's `<!-- TODO -->` markers untouched. `/ai-sdlc:spec-requirements` walks these next.
 
 ### `.sdlc/changes/<slug>/design.md`
 
-Write the template **as-is**, only substituting `{{CHANGE_SLUG}}`. Design content is `/spec-design`'s job once the proposal is TODO-free.
+Write the template **as-is**, only substituting `{{CHANGE_SLUG}}`. Design content is `/ai-sdlc:spec-design`'s job once the proposal is TODO-free.
 
 ### `.sdlc/changes/<slug>/tasks.md`
 
-Write the template **as-is**, only substituting `{{CHANGE_SLUG}}`. `/spec-tasks` fans out tasks after design is accepted.
+Write the template **as-is**, only substituting `{{CHANGE_SLUG}}`. `/ai-sdlc:spec-tasks` fans out tasks after design is accepted.
 
 ## Step 7 — Report
 
@@ -125,7 +125,7 @@ Created .sdlc/changes/<slug>/
   design.md                           skeleton
   tasks.md                            skeleton
 
-Next: /spec-requirements to interview, draft requirements, and seed the first capability delta.
+Next: /ai-sdlc:spec-requirements to interview, draft requirements, and seed the first capability delta.
 ```
 
 ## Constraints
@@ -133,6 +133,6 @@ Next: /spec-requirements to interview, draft requirements, and seed the first ca
 - Never write to `.sdlc/specs/`.
 - Never overwrite an existing change folder.
 - Slug is always derived and confirmed in Step 4 — never taken from `$ARGUMENTS`.
-- Do not create `specs/` here. The first capability delta is seeded by `/spec-requirements`.
+- Do not create `specs/` here. The first capability delta is seeded by `/ai-sdlc:spec-requirements`.
 - `## Why` is always user-confirmed: either Q1 directly, or a candidate motivation the user accepted/edited in Step 3a. No fabricated motivation, no TODO.
 - `## What Changes`, `## Scope`, `## Rollout`, design content, task breakdowns, capability decisions, and the first requirement are deferred to their own commands. Do not pre-fill them here.

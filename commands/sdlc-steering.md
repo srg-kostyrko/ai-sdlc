@@ -1,5 +1,5 @@
 ---
-description: Bootstrap or sync project-wide steering files (.sdlc/steering/) by analyzing the codebase. Use after code exists; on greenfield projects, redirect to /sdlc-project-init.
+description: Bootstrap or sync project-wide steering files (.sdlc/steering/) by analyzing the codebase. Use after code exists; on greenfield projects, redirect to /ai-sdlc:sdlc-project-init.
 argument-hint: (no arguments)
 ---
 
@@ -11,7 +11,7 @@ Check `.sdlc/steering/` and the codebase to choose a mode.
 
 **Greenfield redirect.** If `.sdlc/steering/product.md` does not exist AND no source files are present (glob `**/*.{ts,tsx,js,jsx,py,go,rs,java,rb,cs,kt,swift,ex,erl,clj,scala,php,c,cpp,h,hpp}`):
 
-> This repo looks empty — run `/sdlc-project-init` for guided setup.
+> This repo looks empty — run `/ai-sdlc:sdlc-project-init` for guided setup.
 
 Stop.
 

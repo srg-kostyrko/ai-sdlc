@@ -1,9 +1,9 @@
 ---
-description: Reconcile an active change's deltas with the current living spec when /spec-archive aborted on slug conflicts.
+description: Reconcile an active change's deltas with the current living spec when /ai-sdlc:spec-archive aborted on slug conflicts.
 argument-hint: [<slug>]
 ---
 
-You are rebasing a change's deltas against the current living spec. Use this after `/spec-archive` aborted on slug conflicts (typically because another change was archived first and moved your baseline).
+You are rebasing a change's deltas against the current living spec. Use this after `/ai-sdlc:spec-archive` aborted on slug conflicts (typically because another change was archived first and moved your baseline).
 
 ## Step 1 — Resolve the change
 
@@ -23,7 +23,7 @@ For each `.sdlc/changes/<slug>/specs/<capability>/delta.md`:
 
 ## Step 3 — Detect conflicts
 
-Run the same checks `/spec-archive` runs in its sanity step:
+Run the same checks `/ai-sdlc:spec-archive` runs in its sanity step:
 
 For each delta block, classify each entry:
 
@@ -60,13 +60,13 @@ For each conflict, walk the user through the choice:
 
 ## Step 5 — Apply resolutions
 
-For each user choice, modify the appropriate `delta.md` file in place. Do not modify the living spec — the goal is to make your deltas applicable, not to bypass `/spec-archive`'s merge.
+For each user choice, modify the appropriate `delta.md` file in place. Do not modify the living spec — the goal is to make your deltas applicable, not to bypass `/ai-sdlc:spec-archive`'s merge.
 
 After each resolution, re-run the conflict matrix against the updated delta to confirm progress.
 
 ## Step 6 — Validation impact
 
-Some resolutions invalidate validation rows (e.g. a MODIFIED→ADDED move changes the row category). After resolution, suggest re-running `/spec-validate` to refresh the skeleton. Existing evidence is preserved by `/spec-validate`'s merge.
+Some resolutions invalidate validation rows (e.g. a MODIFIED→ADDED move changes the row category). After resolution, suggest re-running `/ai-sdlc:spec-validate` to refresh the skeleton. Existing evidence is preserved by `/ai-sdlc:spec-validate`'s merge.
 
 ## Step 7 — Report
 
@@ -77,9 +77,9 @@ Rebase complete for <slug>:
   Conflicts resolved:
     specs/auth/delta.md: req-totp-enrollment  ADDED → MODIFIED
     specs/auth/delta.md: req-old-totp        MODIFIED → ADDED (new slug: req-old-totp-v2)
-  Validation rows affected: 3 (run /spec-validate to refresh)
+  Validation rows affected: 3 (run /ai-sdlc:spec-validate to refresh)
 
-Re-run /spec-archive when ready.
+Re-run /ai-sdlc:spec-archive when ready.
 ```
 
 If any conflicts remain unresolved (user deferred the choice), list them and stop without claiming success.

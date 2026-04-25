@@ -21,9 +21,9 @@ The only gate: at least one `.sdlc/changes/<slug>/specs/*/delta.md` must exist w
 If the gate fails, print:
 
 ```
-/spec-validate refused. Reason:
+/ai-sdlc:spec-validate refused. Reason:
 - No non-empty deltas found under .sdlc/changes/<slug>/specs/
-Run /spec-requirements to author requirements first.
+Run /ai-sdlc:spec-requirements to author requirements first.
 ```
 
 ## Step 3 — Read context
@@ -102,9 +102,9 @@ validation.md:               written (<N> rows)
   Stale rows resolved:       <count>   (dropped: <N>, restored: <N>, kept-custom: <N>)
 
 Next:
-  - Tasks unticked: run /spec-impl-task <id> for each. The slice records test evidence and ticks green rows.
-  - Tasks ticked, rows still empty: fill _Evidence:_ by hand (manual rows need _Approved:_), or re-run /spec-impl-task <id> if a test now covers the row.
-  - All rows green: run /spec-review to audit before /spec-archive.
+  - Tasks unticked: run /ai-sdlc:spec-impl-task <id> for each. The slice records test evidence and ticks green rows.
+  - Tasks ticked, rows still empty: fill _Evidence:_ by hand (manual rows need _Approved:_), or re-run /ai-sdlc:spec-impl-task <id> if a test now covers the row.
+  - All rows green: run /ai-sdlc:spec-review to audit before /ai-sdlc:spec-archive.
 ```
 
 If stale rows remain unresolved (user deferred decisions), write **nothing** and report:
@@ -116,15 +116,15 @@ Unresolved stale rows: <N>. Decide drop/restore/keep for each and re-run.
 
 ## Constraints
 
-- Never modify deltas, design, tasks, or proposal — `/spec-validate` only rewrites `validation.md`.
+- Never modify deltas, design, tasks, or proposal — `/ai-sdlc:spec-validate` only rewrites `validation.md`.
 - Never invent test references or approvals. Empty `_Evidence:_` is correct for new rows.
 - Preserve user-authored evidence lines verbatim during refresh, including formatting and any `_Approved:_` line.
 - Do not silently delete rows. Stale rows are surfaced and decided explicitly.
 
 ## Error scenarios
 
-- **No deltas yet (gate fail).** Suggest `/spec-requirements` to author requirements.
-- **Delta has no scenarios or criteria.** A requirement is declared ADDED/MODIFIED but has no `#### Scenario:` and no `#### Criteria` content → no rows can be generated. Ask user to flesh out the delta via `/spec-requirements`.
+- **No deltas yet (gate fail).** Suggest `/ai-sdlc:spec-requirements` to author requirements.
+- **Delta has no scenarios or criteria.** A requirement is declared ADDED/MODIFIED but has no `#### Scenario:` and no `#### Criteria` content → no rows can be generated. Ask user to flesh out the delta via `/ai-sdlc:spec-requirements`.
 - **Existing row's underlying scenario text changed.** Existing row preserved against scenario "Admin enrolls"; delta now has scenario "Admin enrolls successfully" → flagged as stale. User decides: rename evidence to new key, or drop and re-author.
 - **Manual row missing approval.** Preserved row has `_Evidence:_ manual ...` but no `_Approved:_` line → mechanical check fails. Ask user to add approval or convert to test-backed evidence.
 - **Skeleton template missing.** `${CLAUDE_PLUGIN_ROOT}/templates/validation.md` not readable → fall back to inline structure (defined in this command), warn the user that templates may be misconfigured.

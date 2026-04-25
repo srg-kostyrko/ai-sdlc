@@ -24,7 +24,7 @@ User explicitly asks for scenario formatting. Typical phrasings include "rewrite
    - **THEN:** the primary observable outcome.
    - **AND (after THEN):** secondary outcomes — state changes, side effects, audit log entries, emitted events.
 
-4. **Mark domain terms.** Every domain-specific noun phrase appears in Title Case prose (User, Access Token, Recovery Code). Reach for opt-in `[[slug]]` markup only when prose is genuinely ambiguous. If a term isn't in glossary, note it (the user can run `/spec-requirements` to add to `## ADDED Terms`, or invoke the `spec-glossary-suggest` skill).
+4. **Mark domain terms.** Every domain-specific noun phrase appears in Title Case prose (User, Access Token, Recovery Code). Reach for opt-in `[[slug]]` markup only when prose is genuinely ambiguous. If a term isn't in glossary, note it (the user can run `/ai-sdlc:spec-requirements` to add to `## ADDED Terms`, or invoke the `spec-glossary-suggest` skill).
 
 5. **Produce the scenario:**
    ```

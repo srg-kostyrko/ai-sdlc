@@ -39,7 +39,7 @@ Read:
 - `.sdlc/changes/<slug>/design.md` `## Approach` and `## File Structure Plan`.
 - Existing `.sdlc/changes/<slug>/validation.md` — to know which rows correspond to this task's requirements.
 - Living `.sdlc/specs/<cap>/spec.md` for any MODIFIED slug (so you understand current behavior before modifying).
-- `.sdlc/changes/<slug>/findings.md` if present. Surface any open `FIX-BUG` or `FIX-MISMATCH` findings whose `req-slug` is in this task's `_Requirements:_` — these are the issues `/spec-review` flagged for this slice; address them as part of this re-implementation.
+- `.sdlc/changes/<slug>/findings.md` if present. Surface any open `FIX-BUG` or `FIX-MISMATCH` findings whose `req-slug` is in this task's `_Requirements:_` — these are the issues `/ai-sdlc:spec-review` flagged for this slice; address them as part of this re-implementation.
 
 ## Step 4 — Implement the slice
 
@@ -77,7 +77,7 @@ If implementation completed without errors AND no test added or modified by this
 If any of those conditions failed (implementation raised an exception, a touched test is red, or boundary was violated), **leave the box unticked** and report what blocked the tick.
 
 Validation rows are the contract for "requirements satisfied," not this checkbox. The checkbox is bookkeeping for "this slice has been implemented." If review of the diff reveals issues, the user can:
-- Re-run `/spec-impl-task <id>` to re-implement (gate allows re-runs; the box stays ticked or re-ticks).
+- Re-run `/ai-sdlc:spec-impl-task <id>` to re-implement (gate allows re-runs; the box stays ticked or re-ticks).
 - Or ask Claude (in conversation) to untick the box and revise.
 
 ## Step 7 — Report
@@ -96,7 +96,7 @@ Task <id>: <title>                                  [auto-ticked | left unticked
   Validation rows still empty (in scope, no applicable test):
     - <req-slug> / <scenario or criterion>
 
-Next: review the diff. If issues, re-run /spec-impl-task <id> after telling
+Next: review the diff. If issues, re-run /ai-sdlc:spec-impl-task <id> after telling
       me what to change, or ask me to untick + revise.
 ```
 
@@ -107,5 +107,5 @@ If any test failed or the boundary was violated, surface it prominently — the 
 - Never tick a manual validation row (`_Evidence:_ manual ...`) automatically. Manual rows always require `_Approved:_ <author> <date>`.
 - Never invent a test reference. Only fill `_Evidence:_ test://...` when the test actually exists in the codebase and demonstrates the scenario or criterion.
 - Only modify validation rows whose requirement is in this task's `_Requirements:_`. Rows for other requirements belong to other slices.
-- Never modify deltas, design, proposal, or living specs from this command. The slice writes code; if you discover a real spec error mid-implementation, stop and ask the user to revise via `/spec-requirements` or `/spec-design`.
+- Never modify deltas, design, proposal, or living specs from this command. The slice writes code; if you discover a real spec error mid-implementation, stop and ask the user to revise via `/ai-sdlc:spec-requirements` or `/ai-sdlc:spec-design`.
 - Never run with `--no-verify`, skip tests, or bypass commit hooks.

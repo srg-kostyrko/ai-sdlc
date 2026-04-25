@@ -29,10 +29,10 @@ Refuse to proceed unless ALL hold. Print specific failures and stop on miss.
 If a gate fails, format the report as:
 
 ```
-/spec-design refused. Reason(s):
+/ai-sdlc:spec-design refused. Reason(s):
 - proposal.md:14  unresolved <!-- TODO --> in ## Scope
 - specs/auth/delta.md:23  req- slug uses uppercase characters
-Run /spec-requirements to resolve.
+Run /ai-sdlc:spec-requirements to resolve.
 ```
 
 ## Step 3 — Read context
@@ -133,7 +133,7 @@ Run mechanical checks first, then judgment checks. Repair locally and re-run on 
 
 - If a check fails and the issue is local to the draft, fix it and re-run the gate.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue.
-- If the gate exposes a real **spec gap** (deltas can't support a coherent design), stop and ask the user to revise via `/spec-requirements` rather than papering over in the design.
+- If the gate exposes a real **spec gap** (deltas can't support a coherent design), stop and ask the user to revise via `/ai-sdlc:spec-requirements` rather than papering over in the design.
 
 ## Step 5.5 — Grill-me (mandatory)
 
@@ -165,7 +165,7 @@ Report:
 design.md:                clean
 ADRs drafted:             draft-totp-kms.md (1)
 Subagent dispatched:      yes (codebase survey, <N> findings)   |   no (greenfield/simple)
-Ready for /spec-tasks.
+Ready for /ai-sdlc:spec-tasks.
 ```
 
 If the review gate did not pass after 2 repair passes, write **nothing** and report:
@@ -174,7 +174,7 @@ If the review gate did not pass after 2 repair passes, write **nothing** and rep
 Design refinement halted with unresolved issues:
   - <issue 1, with file:line or section>
   - <issue 2>
-Resolve and re-run /spec-design (or /spec-requirements if a spec gap was identified).
+Resolve and re-run /ai-sdlc:spec-design (or /ai-sdlc:spec-requirements if a spec gap was identified).
 ```
 
 ## Constraints
@@ -186,8 +186,8 @@ Resolve and re-run /spec-design (or /spec-requirements if a spec gap was identif
 
 ## Error scenarios
 
-- **Proposal incomplete (gate fail).** Print specific files/lines and stop. Suggest `/spec-requirements`.
-- **Spec gap during design.** If the deltas cannot support a coherent design, stop and ask the user to clarify via `/spec-requirements`. Do not invent requirements in `design.md`.
+- **Proposal incomplete (gate fail).** Print specific files/lines and stop. Suggest `/ai-sdlc:spec-requirements`.
+- **Spec gap during design.** If the deltas cannot support a coherent design, stop and ask the user to clarify via `/ai-sdlc:spec-requirements`. Do not invent requirements in `design.md`.
 - **ADR doesn't qualify.** Drop it; fold the rationale into `## Approach` prose.
 - **Subagent returns vague findings.** If the survey is too generic to inform design (e.g. "the codebase has files"), ask the user to point at specific code paths instead of guessing.
 - **Existing ADR conflict.** If the draft would contradict an accepted ADR, stop. Either the new design must change to honor the ADR, or a new ADR must supersede the old one (handle as a separate decision).

@@ -1,6 +1,6 @@
 ---
 name: spec-glossary-suggest
-description: Use this skill when authoring or reviewing requirement scenarios in an ai-sdlc delta to flag domain-specific noun phrases that should be defined in the capability's `GLOSSARY.md`. Triggers when the user asks "what terms am I missing?", "which terms need glossary entries?", or after a `/spec-requirements` pass when domain vocabulary is in flux. Surfaces capitalized noun phrases without glossary coverage as candidates; never modifies files autonomously.
+description: Use this skill when authoring or reviewing requirement scenarios in an ai-sdlc delta to flag domain-specific noun phrases that should be defined in the capability's `GLOSSARY.md`. Triggers when the user asks "what terms am I missing?", "which terms need glossary entries?", or after a `/ai-sdlc:spec-requirements` pass when domain vocabulary is in flux. Surfaces capitalized noun phrases without glossary coverage as candidates; never modifies files autonomously.
 ---
 
 You are auditing requirement text for missing glossary coverage.
@@ -44,6 +44,6 @@ Project must contain `.sdlc/specs/` or `.sdlc/changes/`.
 
 ## What this skill must not do
 
-- Do not modify any file. This skill is read-only by design — the user (or `/spec-requirements`) is the one who decides whether each candidate is a real term.
+- Do not modify any file. This skill is read-only by design — the user (or `/ai-sdlc:spec-requirements`) is the one who decides whether each candidate is a real term.
 - Do not invent definitions for the suggested terms; surface the candidate, leave authoring to the user.
 - Do not flag every capitalized word — apply the heuristic and accept some false negatives in exchange for low noise.

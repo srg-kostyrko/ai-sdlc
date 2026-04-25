@@ -25,8 +25,8 @@ Create these directories (use `mkdir -p`; idempotent):
 
 `.sdlc/steering/` is created empty. Steering files are populated by:
 
-- `/sdlc-project-init` — for greenfield projects (no source files yet); guided interview produces `product.md` and `tech.md`.
-- `/sdlc-steering` — for projects with existing code; analyzes the codebase to bootstrap `product.md`, `structure.md`, `tech.md`, or syncs them when they exist.
+- `/ai-sdlc:sdlc-project-init` — for greenfield projects (no source files yet); guided interview produces `product.md` and `tech.md`.
+- `/ai-sdlc:sdlc-steering` — for projects with existing code; analyzes the codebase to bootstrap `product.md`, `structure.md`, `tech.md`, or syncs them when they exist.
 
 Do not seed stubs here — the populate commands have richer templates and will write the files when invoked.
 
@@ -46,14 +46,14 @@ The marked block:
 
 This project uses ai-sdlc. The living specification is in `.sdlc/specs/`, organized by bounded-context capability. Active changes are in `.sdlc/changes/`; archived changes in `.sdlc/changes/archive/`.
 
-**Project-wide context** lives in `.sdlc/steering/` (`product.md`, `structure.md`, `tech.md`). Populate via `/sdlc-project-init` (greenfield) or `/sdlc-steering` (existing code); commands read these when authoring designs and grounding answers.
+**Project-wide context** lives in `.sdlc/steering/` (`product.md`, `structure.md`, `tech.md`). Populate via `/ai-sdlc:sdlc-project-init` (greenfield) or `/ai-sdlc:sdlc-steering` (existing code); commands read these when authoring designs and grounding answers.
 
 **When proposing or implementing changes:**
-- Start a change with `/spec-propose "<one-line seed>"` (the seed is optional; `/spec-propose` runs a short interview and derives the slug).
-- Iterate with `/spec-requirements`, `/spec-design`, `/spec-tasks`.
-- Generate the validation skeleton with `/spec-validate`.
-- Implement one vertical slice at a time with `/spec-impl-task <task-id>`.
-- Archive a complete change with `/spec-archive` (mechanical merge into the living spec).
+- Start a change with `/ai-sdlc:spec-propose "<one-line seed>"` (the seed is optional; `/ai-sdlc:spec-propose` runs a short interview and derives the slug).
+- Iterate with `/ai-sdlc:spec-requirements`, `/ai-sdlc:spec-design`, `/ai-sdlc:spec-tasks`.
+- Generate the validation skeleton with `/ai-sdlc:spec-validate`.
+- Implement one vertical slice at a time with `/ai-sdlc:spec-impl-task <task-id>`.
+- Archive a complete change with `/ai-sdlc:spec-archive` (mechanical merge into the living spec).
 
 **Phase gates are completeness checks, not flags.** Each command refuses if its prior artifact has unresolved `<!-- TODO -->` markers, missing required sections, or dangling slug references. To go backward, re-run the prior phase command.
 
@@ -72,9 +72,9 @@ Print a short summary of what was created vs already present, e.g.:
 ```
 .sdlc/ tree:           created  (specs/, changes/, changes/archive/, decisions/, steering/)
 CLAUDE.md:             appended ai-sdlc block
-Next:                  /sdlc-project-init  (greenfield, no source files yet)
-                  or:  /sdlc-steering      (existing code — bootstrap from codebase)
-                  or:  /spec-propose "<one-line seed>"     (start a change directly; populate steering later)
+Next:                  /ai-sdlc:sdlc-project-init  (greenfield, no source files yet)
+                  or:  /ai-sdlc:sdlc-steering      (existing code — bootstrap from codebase)
+                  or:  /ai-sdlc:spec-propose "<one-line seed>"     (start a change directly; populate steering later)
 ```
 
 ## Constraints

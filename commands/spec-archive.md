@@ -26,7 +26,7 @@ Refuse unless ALL hold. Print specific failures and stop on miss. There is **no 
 6. No `<!-- TODO -->` markers anywhere in `proposal.md`, `design.md`, `tasks.md`, `validation.md`, or any `delta.md`.
 7. `.sdlc/changes/<slug>/findings.md` exists with a `## Verdict` block.
 8. `## Verdict` shows `Result: GO`.
-9. The verdict's `Head ref:` value equals the current `git rev-parse HEAD`. (If commits or uncommitted changes have landed since the last review, re-run `/spec-review` to refresh the verdict.)
+9. The verdict's `Head ref:` value equals the current `git rev-parse HEAD`. (If commits or uncommitted changes have landed since the last review, re-run `/ai-sdlc:spec-review` to refresh the verdict.)
 
 ## Step 3 — Slug-presence sanity check (per delta)
 
@@ -41,13 +41,13 @@ If the living capability already exists, verify:
 - For each REMOVED requirement slug: MUST exist in living `spec.md`.
 - Same three rules for ADDED/MODIFIED/REMOVED Terms against living `GLOSSARY.md`.
 
-If any check fails, **abort** with a precise report and suggest `/spec-rebase`:
+If any check fails, **abort** with a precise report and suggest `/ai-sdlc:spec-rebase`:
 
 ```
-/spec-archive aborted. Slug conflicts detected:
+/ai-sdlc:spec-archive aborted. Slug conflicts detected:
   specs/auth/delta.md: req-totp-enrollment marked ADDED but already exists in living spec
   specs/auth/delta.md: req-old-totp marked MODIFIED but does not exist in living spec
-Run /spec-rebase to reconcile.
+Run /ai-sdlc:spec-rebase to reconcile.
 ```
 
 Do not partially apply. All-or-nothing.

@@ -41,5 +41,5 @@ Do NOT use this skill when:
 ## What this skill must not do
 
 - Do not modify any spec, glossary, delta, or change file. This skill is read-only.
-- Do not invoke other workflow commands (`/spec-propose`, `/spec-archive`, etc.) — surface that the user might want to run them, but let them decide.
+- Do not invoke other workflow commands (`/ai-sdlc:spec-propose`, `/ai-sdlc:spec-archive`, etc.) — surface that the user might want to run them, but let them decide.
 - Do not summarize the entire spec when only a narrow part is relevant; respond to what was asked.

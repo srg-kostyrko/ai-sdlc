@@ -27,7 +27,7 @@ Refuse unless ALL hold. Print specific failures and stop on miss.
 5. Every draft ADR referenced in `design.md` exists at its declared path.
 6. `## File Structure Plan` has concrete file paths (not placeholders).
 
-If a gate fails, print the file:line and stop. Suggest `/spec-design`.
+If a gate fails, print the file:line and stop. Suggest `/ai-sdlc:spec-design`.
 
 ## Step 3 — Read context
 
@@ -83,7 +83,7 @@ Run mechanical checks first, then judgment checks.
 
 - If a check fails and the issue is local to the draft, fix it and re-run the gate.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue.
-- If the gate exposes a real **design gap** (e.g. a requirement that no slice can cleanly own), stop and ask the user to revise via `/spec-design` rather than fabricating a slice.
+- If the gate exposes a real **design gap** (e.g. a requirement that no slice can cleanly own), stop and ask the user to revise via `/ai-sdlc:spec-design` rather than fabricating a slice.
 
 ## Step 5.5 — Grill-me (mandatory)
 
@@ -112,7 +112,7 @@ Report:
 tasks.md:                    clean (<N> tasks)
 Capabilities covered:        auth, notifications
 Requirements covered:        <N>/<N> ADDED/MODIFIED  (no orphans)
-Ready for /spec-validate.
+Ready for /ai-sdlc:spec-validate.
 ```
 
 If the review gate did not pass after 2 repair passes, write **nothing** and report:
@@ -121,7 +121,7 @@ If the review gate did not pass after 2 repair passes, write **nothing** and rep
 Task refinement halted with unresolved issues:
   - <issue 1>
   - <issue 2>
-Resolve and re-run /spec-tasks (or /spec-design if a design gap was identified).
+Resolve and re-run /ai-sdlc:spec-tasks (or /ai-sdlc:spec-design if a design gap was identified).
 ```
 
 ## Constraints
@@ -133,9 +133,9 @@ Resolve and re-run /spec-tasks (or /spec-design if a design gap was identified).
 
 ## Error scenarios
 
-- **Design incomplete (gate fail).** Print specific files/lines, suggest `/spec-design`.
-- **Orphan requirement.** A delta has an ADDED/MODIFIED requirement no task covers → ask the user: add a task that covers it, or move/remove it from the delta via `/spec-requirements`.
-- **Phantom requirement.** A task references a `req-slug` that doesn't exist in any delta or living spec → ask the user: fix the typo, or add the requirement via `/spec-requirements`.
+- **Design incomplete (gate fail).** Print specific files/lines, suggest `/ai-sdlc:spec-design`.
+- **Orphan requirement.** A delta has an ADDED/MODIFIED requirement no task covers → ask the user: add a task that covers it, or move/remove it from the delta via `/ai-sdlc:spec-requirements`.
+- **Phantom requirement.** A task references a `req-slug` that doesn't exist in any delta or living spec → ask the user: fix the typo, or add the requirement via `/ai-sdlc:spec-requirements`.
 - **Setup-only task proposed.** User wants a task that doesn't satisfy any requirement → refuse; explain the vertical-slice rule; suggest folding into the next slice.
 - **Task too big (3+ days).** Surface and ask whether to split into smaller end-to-end slices (never into slice + setup).
-- **Boundary drift.** `_Boundary:_` references a file not in `design.md ## File Structure Plan` → flag; ask whether to update the design (rerun `/spec-design`) or retract the boundary.
+- **Boundary drift.** `_Boundary:_` references a file not in `design.md ## File Structure Plan` → flag; ask whether to update the design (rerun `/ai-sdlc:spec-design`) or retract the boundary.

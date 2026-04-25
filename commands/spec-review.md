@@ -1,11 +1,11 @@
 ---
-description: Audit implementation against deltas + design for an active change. Records findings.md and a GO/NO-GO verdict. Required before /spec-archive.
+description: Audit implementation against deltas + design for an active change. Records findings.md and a GO/NO-GO verdict. Required before /ai-sdlc:spec-archive.
 argument-hint: [<slug>]
 ---
 
 You are auditing the implementation of an active change against its deltas and design.
 
-`/spec-review` is **read-only** on code, deltas, design, tasks, and validation. It writes only `findings.md` and reports. Re-running review is the resolution path — each run rewrites `findings.md` from scratch.
+`/ai-sdlc:spec-review` is **read-only** on code, deltas, design, tasks, and validation. It writes only `findings.md` and reports. Re-running review is the resolution path — each run rewrites `findings.md` from scratch.
 
 ## Step 1 — Resolve the change
 
@@ -30,10 +30,10 @@ Refuse unless ALL hold. Print specific failures and stop on miss.
 If a gate fails, print:
 
 ```
-/spec-review refused. Implementation is not yet complete:
+/ai-sdlc:spec-review refused. Implementation is not yet complete:
 - tasks.md:14  task 3 is unticked
 - validation.md:23  row missing _Evidence:_
-Resolve via /spec-impl-task or /spec-validate.
+Resolve via /ai-sdlc:spec-impl-task or /ai-sdlc:spec-validate.
 ```
 
 ## Step 3 — Read context
@@ -157,11 +157,11 @@ Top findings:
   <tag> — <req-slug> / <file:line>
 
 Next:
-  GO     → run /spec-archive when ready.
-  NO-GO  → resolve and re-run /spec-review:
-            FIX-BUG / FIX-MISMATCH → fix code, then /spec-impl-task <id> or direct edits.
-            DESIGN-GAP             → revise via /spec-design.
-            SPEC-GAP               → clarify via /spec-requirements.
+  GO     → run /ai-sdlc:spec-archive when ready.
+  NO-GO  → resolve and re-run /ai-sdlc:spec-review:
+            FIX-BUG / FIX-MISMATCH → fix code, then /ai-sdlc:spec-impl-task <id> or direct edits.
+            DESIGN-GAP             → revise via /ai-sdlc:spec-design.
+            SPEC-GAP               → clarify via /ai-sdlc:spec-requirements.
 ```
 
 ## Constraints
@@ -173,7 +173,7 @@ Next:
 
 ## Error scenarios
 
-- **Implementation not done (gate fail).** Print specific failures, suggest `/spec-impl-task` or `/spec-validate`.
+- **Implementation not done (gate fail).** Print specific failures, suggest `/ai-sdlc:spec-impl-task` or `/ai-sdlc:spec-validate`.
 - **No diff vs. main.** The branch has no implementation commits → review may still find issues in uncommitted changes; otherwise the verdict is trivially GO with zero findings (the change introduced no code, e.g. a spec-only refinement).
 - **Main branch unknown.** If neither `main` nor `master` exists locally, ask the user for the base ref.
 - **Finding spans multiple requirements.** Record once with the most-specific `req-slug`; mention the others in the description.

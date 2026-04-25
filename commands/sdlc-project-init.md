@@ -14,7 +14,7 @@ Run two checks before starting the interview. If either fails, stop with the ind
 **Check 1 — already initialized.**
 Read `.sdlc/steering/product.md`. If it exists and contains real content beyond the template's placeholder text (e.g. has filled sections, not just `[Brief description ...]`):
 
-> Steering already exists. Use `/sdlc-steering` to update.
+> Steering already exists. Use `/ai-sdlc:sdlc-steering` to update.
 
 Stop.
 
@@ -23,7 +23,7 @@ Glob for source files: `**/*.{ts,tsx,js,jsx,py,go,rs,java,rb,cs,kt,swift,ex,erl,
 
 If source files are found:
 
-> This looks like a brownfield project — use `/sdlc-steering` instead.
+> This looks like a brownfield project — use `/ai-sdlc:sdlc-steering` instead.
 
 Stop.
 
@@ -72,7 +72,7 @@ List each with a proposed one-line definition. Accept corrections. (Do NOT write
 
 **ADR candidates (conditional).** If hard-to-reverse decisions surfaced:
 
-> "These look like architectural decisions worth recording. Run a one-shot decision capture for each when you're ready (or let `/spec-design` draft them when relevant)."
+> "These look like architectural decisions worth recording. Run a one-shot decision capture for each when you're ready (or let `/ai-sdlc:spec-design` draft them when relevant)."
 
 List candidates. Skip silently if none surfaced.
 
@@ -108,7 +108,7 @@ Write to `.sdlc/steering/tech.md`.
 
 ### `.sdlc/steering/structure.md`
 
-**Do not generate**. Structure depends on real code organization; defer to `/sdlc-steering` after code exists.
+**Do not generate**. Structure depends on real code organization; defer to `/ai-sdlc:sdlc-steering` after code exists.
 
 ## Step 4 — Report
 
@@ -120,14 +120,14 @@ Created:
   .sdlc/steering/tech.md
 
 Deferred:
-  .sdlc/steering/structure.md  (run /sdlc-steering once you have code)
+  .sdlc/steering/structure.md  (run /ai-sdlc:sdlc-steering once you have code)
 ```
 
 If ADR candidates were flagged in Phase 3, list them again under `ADR candidates:`.
 
 End with:
 
-> Run /spec-propose "<one-line seed>" to start your first change.
+> Run /ai-sdlc:spec-propose "<one-line seed>" to start your first change.
 
 ## Constraints
 

@@ -1,7 +1,7 @@
 # {{CAPABILITY}} — Living Spec
 
 <!-- This file is the current truth for the {{CAPABILITY}} capability. -->
-<!-- Do not edit ## Requirements by hand — changes flow in via /spec-archive merging deltas. -->
+<!-- Do not edit ## Requirements by hand — changes flow in via /ai-sdlc:spec-archive merging deltas. -->
 <!-- ## Purpose is meta and may be edited directly to refine the capability's description. -->
 
 ## Purpose
