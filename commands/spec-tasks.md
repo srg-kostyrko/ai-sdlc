@@ -57,6 +57,8 @@ Decomposition rubric:
    - `_Depends:_` task IDs this task genuinely depends on (within or across groups); `—` if none. Independence is conveyed by `—`.
 6. Each task should be roughly day-sized. If smaller, consider merging; if larger, split into smaller end-to-end slices (not into a slice + a setup task).
 
+`_Boundary:_` is a **scope hypothesis**, not a fence. It captures the files the slice is expected to touch given current understanding. During implementation, a slice may legitimately expand its boundary — for example, when honoring it would force a parallel of an existing abstraction. The implementation command (`/ai-sdlc:spec-impl-task`) handles those deviations by recording them, not by halting. Don't try to draw boundaries so tightly that they prevent the natural fix.
+
 Iterate with the user on the rubric output before finalizing.
 
 ## Step 5 — Review gate
@@ -79,7 +81,7 @@ Run mechanical checks first, then judgment checks.
 
 1. **Vertical-slice integrity.** Reject any task whose effect is only setup, scaffolding, migration, or "preparing X for later" — refold into the first downstream slice. Each task, when complete, should make at least one referenced requirement *demonstrably true*.
 2. **Capability honesty.** `_Capabilities:_` matches the bounded contexts the slice actually touches. A slice that lists `auth, billing` but only modifies `auth` files is mislabeled.
-3. **Boundary alignment.** Where `_Boundary:_` is listed, file paths should appear in `design.md ## File Structure Plan` (or the design plan should be updated to include them — flag, don't silently expand).
+3. **Boundary alignment.** Where `_Boundary:_` is listed, file paths should appear in `design.md ## File Structure Plan` (or the design plan should be updated to include them — flag, don't silently expand). Boundaries can stay loose where slice scope is genuinely uncertain at planning time; tightness is not the goal.
 4. **Day-sized target.** Flag any task that visibly exceeds 2–3 days or visibly takes <2 hours; ask whether to split or merge.
 5. **Dependency honesty.** Every `_Depends:_` entry reflects a real ordering constraint (shared file, build artifact, runtime data). Spurious deps make the work look more sequential than it is; missing deps create silent breakage.
 6. **Group coherence.** Each group's tasks share a capability, file area, or theme. Group names describe the area of work, not a phase or ordering. Tasks bundled together that don't belong, or tasks split across groups when they share scope, both warrant a re-cluster.
