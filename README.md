@@ -55,6 +55,8 @@ If `/spec-archive` aborts on slug conflicts (another change archived first):
 - **Delta** — `changes/<slug>/specs/<capability>/delta.md`. Expresses `ADDED` / `MODIFIED` / `REMOVED` blocks for both Requirements and Terms. Merges into the living spec at archive.
 - **Vertical slice** — every task satisfies ≥1 requirement (referenced by slug). No infra-only or scaffolding tasks; setup folds into the first slice that needs it.
 - **ADR** — written only when a decision is (1) hard to reverse, (2) surprising without context, (3) a real trade-off. Per-capability ADRs live alongside the spec; system-wide ADRs at `.sdlc/decisions/`.
+- **Steering** — `.sdlc/steering/{product,structure,tech}.md`. Project-wide context (goals, layout, stack). Populated via `/sdlc-project-init` (greenfield interview) or `/sdlc-steering` (codebase scan / drift sync). Loaded by `/spec-design` when authoring designs and by the `spec-aware` skill when grounding answers. Distinct from per-capability glossaries (bounded-context vocabulary).
+- **Guideline** — reusable process knowledge (e.g. EARS criterion phrasing, verification discipline, durable-brief rules). Lives in the plugin's `guidelines/`; commands `Read` the relevant one as part of their context loading instead of inlining the rules.
 
 ## Layout (target project)
 
@@ -79,6 +81,10 @@ If `/spec-archive` aborts on slug conflicts (another change archived first):
       YYYY-MM-DD-<slug>/  # archived (proposal + design + validation only)
   decisions/
     NNNN-slug.md          # system-wide ADRs
+  steering/
+    product.md            # project goals + value proposition
+    structure.md          # module layout + conventions
+    tech.md               # stack + constraints
 ```
 
 ## Layout (plugin)
@@ -86,9 +92,10 @@ If `/spec-archive` aborts on slug conflicts (another change archived first):
 ```
 ai-sdlc/
   .claude-plugin/{plugin,marketplace}.json
-  commands/               # 9 slash commands
+  commands/               # 11 slash commands
   skills/                 # 4 skills
-  templates/              # 8 markdown templates
+  templates/              # 8 change/spec templates + 3 steering templates
+  guidelines/             # reusable process knowledge (criterion-phrasing, verification, durable-briefs)
 ```
 
 ## Commands
@@ -96,6 +103,8 @@ ai-sdlc/
 | Command | Purpose |
 |---|---|
 | `/sdlc-init` | Bootstrap `.sdlc/` and update CLAUDE.md / AGENTS.md. |
+| `/sdlc-project-init [<desc>]` | Greenfield interview — populates `steering/product.md` and `tech.md`. |
+| `/sdlc-steering` | Bootstrap or sync `steering/` from the codebase (existing-code projects). |
 | `/spec-propose <slug> "<desc>"` | Create change folder with first-draft artifacts. |
 | `/spec-requirements [<slug>]` | Refine proposal narrative + deltas. |
 | `/spec-design [<slug>]` | Author Approach, Goals/Non-Goals, File Structure Plan, Risks; optionally draft ADRs. |

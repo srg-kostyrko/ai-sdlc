@@ -58,7 +58,7 @@ Run the mechanical checks first (no judgment), then the judgment checks. Repair 
 ### Judgment checks (apply after mechanical pass)
 
 1. Each scenario is specific, observable, testable. Reject vague verbs ("supports X", "handles Y") without a measurable outcome.
-2. Each `#### Criteria` bullet follows EARS-Ubiquitous form: `The [System] shall [action]`. Reject passive voice ("Recovery codes are hashed") and implicit subjects ("Logging happens") — restate in shall-form ("The Auth Service shall hash recovery codes"). The system name must be explicit.
+2. Each `#### Criteria` bullet follows EARS-Ubiquitous form: `The [System] shall [action]` — explicit subject + `shall` + concrete action. Reject passive voice and implicit subjects. For full rules, examples, and antipatterns, read `${CLAUDE_PLUGIN_ROOT}/guidelines/criterion-phrasing.md` before this check.
 3. Each requirement's `**Why:**` ties back to `proposal.md ## Why` or `## What Changes` — not a freestanding rationale.
 4. Per-capability deltas are coherent: every term appearing in a scenario is either pre-existing or has a corresponding entry in `## ADDED Terms`; no orphan terms.
 5. `proposal.md ## What Changes` lists at least one item that maps to each capability whose delta is non-empty (no silent capability touches).

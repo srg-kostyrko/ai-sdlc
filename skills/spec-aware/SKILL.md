@@ -30,6 +30,8 @@ Do NOT use this skill when:
    - `.sdlc/specs/<capability>/GLOSSARY.md` — current term definitions.
    - `.sdlc/specs/<capability>/CHANGELOG.md` — recent changes (skim).
 
+3a. **Load project-wide steering when relevant** — `.sdlc/steering/{product,structure,tech}.md`. Read selectively: `product.md` for goal/scope questions, `structure.md` when the user asks about layout or conventions, `tech.md` for stack/constraint questions. Skip files that don't exist or contain only template placeholder text (`[Brief description ...]`, `[Pattern Name]`, etc.) — those are unpopulated and have no grounding value.
+
 4. **Check in-flight changes.** For each relevant capability, look for `.sdlc/changes/*/specs/<capability>/delta.md`. Note any ADDED/MODIFIED/REMOVED slugs; these are not yet living truth but are in-flight commitments.
 
 5. **Respond grounded.** Answer the user's actual question, citing requirement slugs and ADR identifiers where they support the answer. Do not echo the spec verbatim unless asked — use it to inform.

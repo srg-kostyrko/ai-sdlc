@@ -43,6 +43,8 @@ Read into main context:
 - Existing `.sdlc/changes/<slug>/design.md` (if present — used as merge base)
 - Living capability specs touched by the deltas (`.sdlc/specs/<capability>/spec.md` and `GLOSSARY.md`)
 - Existing ADRs under `.sdlc/specs/<capability>/decisions/` and `.sdlc/decisions/` so the design doesn't contradict prior decisions
+- **Project-wide steering** under `.sdlc/steering/`: read `product.md` (project goals + value), `structure.md` (module layout + conventions), `tech.md` (stack + constraints). Skip files that don't exist or contain only template placeholder text — those are unpopulated.
+- **Brief-writing guideline:** read `${CLAUDE_PLUGIN_ROOT}/guidelines/durable-briefs.md` before drafting — its rules apply to `## Approach`, `## File Structure Plan`, and `## Risks`.
 
 ### Optional — dispatch a subagent for codebase survey
 

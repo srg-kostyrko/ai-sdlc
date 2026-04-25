@@ -52,9 +52,11 @@ Write tests as part of the implementation. For scenario rows, prefer integration
 
 ## Step 5 — Run tests and identify validation rows
 
+Before any "tests passed" claim or auto-tick decision, follow the discipline in `${CLAUDE_PLUGIN_ROOT}/guidelines/verification-before-completion.md`: run the verification command fresh, read its full output (including exit code and failure count), and only then claim a result. No "should pass", no extrapolation from partial output.
+
 After implementing:
 
-1. Run the project's test suite, scoped if possible to the files you touched. Capture which tests passed and which failed.
+1. Run the project's test suite, scoped if possible to the files you touched. Capture exit code, pass/fail counts, and the full failure list.
 2. For each row in `validation.md` whose `_Evidence:_` line references a test (`_Evidence:_ test://...`):
    - Check whether that test exists in the codebase and is green in this run.
    - If yes → tick the row (`- [x]`).

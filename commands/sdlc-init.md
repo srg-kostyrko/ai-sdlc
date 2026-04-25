@@ -19,6 +19,16 @@ Create these directories (use `mkdir -p`; idempotent):
 - `.sdlc/changes/`           — active change proposals
 - `.sdlc/changes/archive/`   — historical, immutable
 - `.sdlc/decisions/`         — system-wide ADRs only (per-capability ADRs live under `specs/{capability}/decisions/`)
+- `.sdlc/steering/`          — project-wide context (product, structure, tech, tactics)
+
+## Steering directory
+
+`.sdlc/steering/` is created empty. Steering files are populated by:
+
+- `/sdlc-project-init` — for greenfield projects (no source files yet); guided interview produces `product.md` and `tech.md`.
+- `/sdlc-steering` — for projects with existing code; analyzes the codebase to bootstrap `product.md`, `structure.md`, `tech.md`, or syncs them when they exist.
+
+Do not seed stubs here — the populate commands have richer templates and will write the files when invoked.
 
 ## Update CLAUDE.md and AGENTS.md
 
@@ -35,6 +45,8 @@ The marked block (identical in both files):
 ## Spec-driven workflow
 
 This project uses ai-sdlc. The living specification is in `.sdlc/specs/`, organized by bounded-context capability. Active changes are in `.sdlc/changes/`; archived changes in `.sdlc/changes/archive/`.
+
+**Project-wide context** lives in `.sdlc/steering/` (`product.md`, `structure.md`, `tech.md`). Populate via `/sdlc-project-init` (greenfield) or `/sdlc-steering` (existing code); commands read these when authoring designs and grounding answers.
 
 **When proposing or implementing changes:**
 - Start a change with `/spec-propose <slug> "<one-line description>"`.
@@ -58,10 +70,12 @@ This project uses ai-sdlc. The living specification is in `.sdlc/specs/`, organi
 Print a short summary of what was created vs already present, e.g.:
 
 ```
-.sdlc/ tree:    created  (specs/, changes/, changes/archive/, decisions/)
-CLAUDE.md:      appended ai-sdlc block
-AGENTS.md:      created with ai-sdlc block
-Next step:      /spec-propose <slug> "<description>"
+.sdlc/ tree:           created  (specs/, changes/, changes/archive/, decisions/, steering/)
+CLAUDE.md:             appended ai-sdlc block
+AGENTS.md:             created with ai-sdlc block
+Next:                  /sdlc-project-init  (greenfield, no source files yet)
+                  or:  /sdlc-steering      (existing code — bootstrap from codebase)
+                  or:  /spec-propose <slug> "<description>"  (start a change directly; populate steering later)
 ```
 
 ## Constraints
