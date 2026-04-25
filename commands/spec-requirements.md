@@ -1,9 +1,11 @@
 ---
-description: Refine proposal.md and capability deltas for an active change. Drafts changes in memory, runs a review gate, writes only when clean.
+description: Refine proposal.md and capability deltas for an active change. Interviews the user, drafts requirements in memory, runs self-check and grill-me, writes only when clean.
 argument-hint: [<slug>]
 ---
 
 You are refining the requirements (proposal narrative + per-capability deltas) for an active change.
+
+The flow is **interview → draft → self-check → grill-me → glossary sweep → finalize**. Structure (req- slugs, Scenario blocks, ADDED/MODIFIED/REMOVED partitioning) is your job, not the user's. Elicit understanding in plain language first, then formalize.
 
 ## Step 1 — Resolve the change
 
@@ -14,47 +16,70 @@ User input: $ARGUMENTS
   - If exactly one folder exists under `.sdlc/changes/` (excluding `archive/`), use it.
   - Otherwise list the active changes and ask.
 
-Pre-flight: the resolved folder must contain `proposal.md`. If not, suggest `/spec-propose`. The folder may have zero `specs/<capability>/delta.md` files right after `/spec-propose` — Step 3 seeds the first delta lazily.
+Pre-flight: the resolved folder must contain `proposal.md`. If not, suggest `/spec-propose`. The folder may have zero `specs/<capability>/delta.md` files right after `/spec-propose` — Step 4 seeds the first delta lazily.
 
 ## Step 2 — Read current state
 
 Read into context:
 - `.sdlc/changes/<slug>/proposal.md`
 - Every `.sdlc/changes/<slug>/specs/*/delta.md` (may be zero — that's fine).
-- For each capability already touched: `.sdlc/specs/<capability>/spec.md` and `.sdlc/specs/<capability>/GLOSSARY.md` (for slug resolution on MODIFIED/REMOVED entries and term references). These may not yet exist for newly-introduced capabilities.
+- For each capability already touched: `.sdlc/specs/<capability>/spec.md` and `.sdlc/specs/<capability>/GLOSSARY.md` (for slug resolution and term references). These may not yet exist for newly-introduced capabilities.
+- `.sdlc/steering/*.md` if present (project-wide context).
 
-## Step 3 — Draft refinements in memory
+## Step 3 — Interview (always-on)
 
-Walk the user through the changes interactively. Hold proposed edits **in memory only** — do not write to disk yet.
+Ask 3–5 targeted open questions, **one at a time**, to fill gaps in `proposal.md` and surface the behaviors this change must guarantee. Skip a question only if the existing `proposal.md` already answers it concretely.
+
+Cover, in roughly this order:
+1. **Users and triggers.** Who interacts with this, and what causes the behavior to fire?
+2. **Observable outcomes.** What must be true after the behavior runs that wasn't true before? Concrete, testable.
+3. **Edges and failure modes.** What inputs, states, or timings break the happy path? What should the system do then?
+4. **Invariants.** What must always hold regardless of trigger (e.g. data integrity, security, ordering)?
+5. **Scope boundary and rollout.** What's explicitly *not* in this change? How does it ship — flagged, staged, reversible?
+
+Phrase questions in the user's domain language. Provide a recommended answer when you have grounded grounds for one (codebase evidence, prior `proposal.md` content, steering files). Wait for each answer before moving on. Do not ask the user to name `req-` slugs, capability names, or scenario shapes — those come from you in Step 4.
+
+## Step 4 — Draft in memory
+
+Hold all edits in memory only. Do not write to disk until Step 9.
 
 ### proposal.md
-- For each `<!-- TODO -->` marker in `## Why`, `## What Changes`, `## Scope`, `## Rollout`: ask the user the targeted question; record the answer in the in-memory draft. Do not invent.
-- Required sections must end TODO-free for the gate to pass.
+- Fill `## Why`, `## What Changes`, `## Scope`, `## Rollout` from the interview answers, lightly edited for prose flow. Replace every `<!-- TODO -->` marker. Do not invent motivation the user did not give.
 
-### Each `delta.md`
-- If the change has **no ADDED requirements across any delta** (typical right after `/spec-propose`): walk the user through the first one.
-  1. Ask: "Describe the smallest behavior or invariant this change must guarantee. Triggered behavior (when X happens, then Y) becomes a Scenario; an always-true rule (the system shall Z) becomes a Criteria."
-  2. From the answer, derive a title, a `req-` slug, the Scenario or Criteria block, and any `[[term-slug]]` references.
-  3. If no `specs/<capability>/delta.md` exists yet, infer the most likely **bounded-context capability** from `proposal.md ## Why` plus the requirement just drafted (e.g. `auth`, `billing`, `notifications`, `search`) and ask: ``This looks like it touches `<suggested>`. Confirm, or name a different capability slug.`` The slug must be lowercase-dashed.
-  4. Hold a fresh `delta.md` for that capability in memory (instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md`, with `{{CAPABILITY}}` substituted) and drop the requirement into its `## ADDED Requirements` block.
-  5. If the answer to step 1 is too vague, ask one follow-up; if still vague, stop and tell the user the change needs a concrete first requirement before proceeding.
-- Audit `## ADDED Requirements`: each must have `### Requirement: TITLE {#req-slug}`, `**Why:**`, and either `#### Scenario:` (with `WHEN`/`THEN`) or `#### Criteria` (bullet invariants). Slugs are immutable once introduced.
-- Audit `## MODIFIED Requirements`: every slug must already exist in the corresponding living `spec.md`. If not, propose moving it to ADDED.
-- Audit `## REMOVED Requirements`: same — slug must exist in living spec.
-- Term hygiene: every `[[term-slug]]` referenced must resolve to an existing living glossary entry OR an entry in this delta's `## ADDED Terms`. If unresolved, prompt the user: define here, fix the reference, or remove.
-- Adding a NEW capability: hold a new `delta.md` (instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md`) in memory; only write at finalization.
+### Per-capability deltas
+- Infer the most likely **bounded-context capability** from the interview content (e.g. `auth`, `billing`, `notifications`, `search`). If the change spans more than one capability, hold one `delta.md` per capability in memory, instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md` with `{{CAPABILITY}}` substituted.
+- For each behavior the user described, draft a requirement:
+  - Title (short noun phrase) and `req-<slug>` (lowercase-dashed).
+  - `**Why:**` — one line tying the requirement back to `proposal.md ## Why` or `## What Changes`.
+  - **Triggered behavior** → `#### Scenario:` block with `WHEN [[term-slug]] …` / `THEN observable outcome`.
+  - **Always-true rule** → `#### Criteria` bullet in EARS-Ubiquitous form (`The [System] shall [action]`). For full rules read `${CLAUDE_PLUGIN_ROOT}/guidelines/criterion-phrasing.md`.
+- Place each in the right block:
+  - `## ADDED Requirements` — slug not yet in the living spec.
+  - `## MODIFIED Requirements` — slug already exists in the corresponding living `spec.md`.
+  - `## REMOVED Requirements` — slug exists in living spec and this change drops it.
+- For domain nouns surfacing in scenarios, draft `## ADDED Terms` entries (`### Term: Name {#term-slug}` + `**Definition:**` + `**Notes:**`). Pre-existing terms in living `GLOSSARY.md` need no entry — just reference them with `[[term-slug]]`.
 
-### Glossary deltas (`## ADDED Terms`, `## MODIFIED Terms`, `## REMOVED Terms`)
-- Each new term needs `**Definition:**` (1–2 sentences) and `**Notes:**` (disambiguation/usage).
+### Confirm capability inference
 
-## Step 4 — Review gate
+After drafting, show the user a one-line summary per capability:
 
-Run the mechanical checks first (no judgment), then the judgment checks. Repair locally and re-run on failures.
+```
+Capabilities inferred from your answers:
+  auth          — 3 ADDED requirements, 2 ADDED terms
+  notifications — 1 ADDED requirement
+Confirm, or correct the capability split.
+```
+
+Apply corrections to the in-memory draft before proceeding.
+
+## Step 5 — Self-check (silent, autonomous)
+
+Run mechanical checks first, then judgment checks. Auto-repair within bounds; surface to the user only if a check fails after repair.
 
 ### Mechanical checks (must all pass)
 
 1. `proposal.md` draft contains `## Why`, `## What Changes`, `## Scope`, `## Rollout`. None contains `<!-- TODO -->`.
-2. The change has at least one ADDED requirement across its deltas (a change with zero requirements cannot advance to `/spec-design`).
+2. The change has at least one ADDED requirement across its deltas.
 3. Every requirement slug uses `{#req-slug}` and matches `^req-[a-z0-9][a-z0-9-]*$`.
 4. Every term slug uses `{#term-slug}` and matches `^term-[a-z0-9][a-z0-9-]*$`.
 5. No two ADDED requirement slugs collide across the change's deltas.
@@ -65,20 +90,49 @@ Run the mechanical checks first (no judgment), then the judgment checks. Repair 
 ### Judgment checks (apply after mechanical pass)
 
 1. Each scenario is specific, observable, testable. Reject vague verbs ("supports X", "handles Y") without a measurable outcome.
-2. Each `#### Criteria` bullet follows EARS-Ubiquitous form: `The [System] shall [action]` — explicit subject + `shall` + concrete action. Reject passive voice and implicit subjects. For full rules, examples, and antipatterns, read `${CLAUDE_PLUGIN_ROOT}/guidelines/criterion-phrasing.md` before this check.
-3. Each requirement's `**Why:**` ties back to `proposal.md ## Why` or `## What Changes` — not a freestanding rationale.
-4. Per-capability deltas are coherent: every term appearing in a scenario is either pre-existing or has a corresponding entry in `## ADDED Terms`; no orphan terms.
-5. `proposal.md ## What Changes` lists at least one item that maps to each capability whose delta is non-empty (no silent capability touches).
+2. Each `#### Criteria` bullet follows EARS-Ubiquitous form (see `${CLAUDE_PLUGIN_ROOT}/guidelines/criterion-phrasing.md`).
+3. Each requirement's `**Why:**` ties back to `proposal.md ## Why` or `## What Changes`.
+4. Per-capability deltas are coherent: every term in a scenario is pre-existing or has an `## ADDED Terms` entry; no orphans.
+5. `proposal.md ## What Changes` lists at least one item that maps to each capability whose delta is non-empty.
 
 ### Repair loop
 
-- If any check fails and the issue is local to the in-memory draft (typo, missing field, dangling reference): fix in the draft and re-run the review gate.
+- If a check fails and the issue is local (typo, missing field, dangling reference, slug normalization, scope-mapping bullet missing): fix in the draft and re-run.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue to the user — do not invent a fix.
-- If the issue is a real ambiguity (contradictory user input, capability name unclear), stop on the first occurrence and ask the user.
+- If the issue is a real ambiguity (contradictory user input, capability name unclear), stop on first occurrence and ask the user.
 
-## Step 5 — Finalize
+## Step 6 — Grill-me (mandatory)
 
-Once the review gate passes, write the in-memory draft to disk:
+Run the `grill-me` skill against the in-memory draft. This step **cannot** be skipped, regardless of change size.
+
+Walk each branch of the decision tree:
+- **Ambiguity** — scenarios where two reasonable readings give different outcomes.
+- **Missing edges** — failure modes, race conditions, partial-state handling, retries, idempotency.
+- **Scope tension** — items that look in-scope but the rationale points out-of-scope, or vice versa.
+- **Invariant gaps** — implicit assumptions that should be explicit `#### Criteria` bullets.
+- **Term collisions** — domain words used in two senses, terms that should be split or merged.
+- **Tradeoff pressure** — where two requirements pull against each other, force a resolution.
+
+Ask one question at a time, with your recommended answer grounded in codebase evidence or `proposal.md`. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+
+If grill-me produced changes, re-run Step 5's mechanical checks once more (no judgment-loop re-run — grill-me is the judgment loop).
+
+## Step 7 — Glossary sweep
+
+Invoke `spec-glossary-suggest` against each in-memory delta draft. For each surfaced candidate:
+- **Unresolved `[[term]]`** — typo or genuinely missing entry. Fix the markup or add to `## ADDED Terms`.
+- **Capitalized phrase, likely term** — wrap as `[[term-slug]]` and add to `## ADDED Terms`.
+- **Capitalized phrase, low-confidence** — leave alone unless the user flags it.
+
+Apply changes to the in-memory draft. Skip if zero candidates surface.
+
+## Step 8 — Final mechanical re-check
+
+After grill-me and glossary sweep, run Step 5's mechanical checks one final time. If any fail, surface to the user — do not write.
+
+## Step 9 — Finalize
+
+Write the in-memory draft to disk:
 
 - `.sdlc/changes/<slug>/proposal.md`
 - Each `.sdlc/changes/<slug>/specs/<capability>/delta.md` (including any newly-introduced capability deltas).
@@ -93,7 +147,7 @@ Capabilities touched:          auth, notifications
 Ready for /spec-design.
 ```
 
-If the review gate did not pass after 2 repair passes, write **nothing** and report:
+If Step 8 did not pass, write **nothing** and report:
 
 ```
 Refinement halted with unresolved issues:
@@ -108,13 +162,13 @@ Resolve and re-run /spec-requirements.
 - Never modify `tasks.md`, `design.md`, or `validation.md`.
 - Slugs are immutable: REMOVE the old + ADD the new, never rename in place.
 - One requirement per `### Requirement:` heading; avoid bundling unrelated behaviors.
+- The user describes behaviors in plain language. You produce slugs, capability names, scenario shape, and EARS form.
 
 ## Error scenarios
 
-- **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/spec-propose "<one-line seed>"`.
-- **Multiple active changes (ambiguous).** `$ARGUMENTS` empty and >1 active change → list active slugs and ask the user to specify.
-- **No deltas yet.** `proposal.md` exists but no `specs/*/delta.md` → expected state right after `/spec-propose`. Step 3 seeds the first capability + requirement interactively.
-- **New capability requested.** User wants a delta for a capability not yet in the change → confirm the slug, then create the delta in memory.
-- **Slug clash.** User proposes ADDING a slug that already exists (in living spec OR in this change's deltas) → reject; ask for a different slug.
-- **Unresolved term reference.** A `[[term-slug]]` in scenario text doesn't resolve → prompt: define in `## ADDED Terms`, fix the reference, or remove.
-- **MODIFIED/REMOVED of a non-existent slug.** Living spec doesn't have the targeted slug → propose moving the entry to ADDED, or drop it.
+- **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/spec-propose`.
+- **Multiple active changes (ambiguous).** `$ARGUMENTS` empty and >1 active change → list active slugs and ask.
+- **Slug clash.** A drafted ADDED slug collides with an existing slug (living spec OR another delta in this change) → pick a different slug; if the user has a preferred name, ask.
+- **MODIFIED/REMOVED of a non-existent slug.** Living spec doesn't have the targeted slug → reclassify as ADDED, or drop.
+- **Capability inference rejected.** User corrects the capability split → re-bucket in-memory deltas and re-run Step 5.
+- **Grill-me reaches no shared understanding.** A challenge surfaces a contradiction the user cannot resolve → stop and write nothing; report the open question.

@@ -1,9 +1,11 @@
 ---
-description: Refine tasks.md for an active change. Drafts in memory, runs a review gate, writes only when clean. Vertical slices only.
+description: Refine tasks.md for an active change. Drafts in memory, runs self-check and grill-me, writes only when clean. Vertical slices only.
 argument-hint: [<slug>]
 ---
 
 You are refining the task decomposition for an active change.
+
+The flow is **resolve → gate → read context → draft → self-check → grill-me → finalize**. By tasks time the input (proposal, deltas, design) is firm — there is no pre-draft interview. Grill-me is the user's checkpoint before write.
 
 ## Step 1 — Resolve the change
 
@@ -84,6 +86,24 @@ Run mechanical checks first, then judgment checks.
 - If a check fails and the issue is local to the draft, fix it and re-run the gate.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue.
 - If the gate exposes a real **design gap** (e.g. a requirement that no slice can cleanly own), stop and ask the user to revise via `/spec-design` rather than fabricating a slice.
+
+## Step 5.5 — Grill-me (mandatory)
+
+Run the `grill-me` skill against the in-memory tasks draft. This step **cannot** be skipped, regardless of change size.
+
+Walk each branch of the decision tree. Focus on attacks the mechanical gate cannot make:
+
+- **Hidden setup work** — a slice that *looks* vertical but ships nothing user-visible until a later slice arrives. Refold into the first slice that delivers value.
+- **Fake parallelism within a group** — two `(P)` tasks that actually share state, files, or a build artifact. One must depend on the other.
+- **Slice size honesty** — tasks that visibly exceed 2–3 days, or trivially small tasks that should fold into a neighbor. Propose where to cut or merge.
+- **Capability drift** — `_Capabilities:_` lists a context the slice doesn't actually touch, or omits one it does.
+- **Boundary leakage** — `_Boundary:_` files outside the touched capabilities, or files not in `design.md ## File Structure Plan`. Either fix the boundary or update the design.
+- **Orphan or phantom requirements** — an ADDED/MODIFIED slug with no covering task, or a `_Requirements:_` reference that doesn't resolve. Surface as a real spec or design gap, not a slice fabrication.
+- **Sequencing rationale** — group ordering that's arbitrary rather than driven by data flow or risk reduction.
+
+Ask one question at a time, with your recommended answer grounded in design content, deltas, or codebase evidence. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+
+If grill-me produced changes, re-run Step 5's mechanical checks once more.
 
 ## Step 6 — Finalize
 

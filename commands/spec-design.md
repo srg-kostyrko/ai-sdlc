@@ -1,9 +1,11 @@
 ---
-description: Refine design.md for an active change. Drafts in memory, runs a review gate, writes only when clean. Optionally dispatches a subagent to survey existing code.
+description: Refine design.md for an active change. Surfaces missing constraints, drafts in memory, runs self-check and grill-me, writes only when clean. Optionally dispatches a subagent to survey existing code.
 argument-hint: [<slug>]
 ---
 
 You are refining the design for an active change.
+
+The flow is **resolve → gate → read context → constraints interview (skip-when-covered) → draft → self-check → grill-me → finalize**. Structure (section shape, ADR qualification, file-plan format) is your job. Elicit constraints in plain language when they're missing, then formalize.
 
 ## Step 1 — Resolve the change
 
@@ -55,6 +57,20 @@ Example dispatch prompt:
 > Survey existing code in <path-pattern> related to capability `<capability>`. Report under 200 lines: (1) current implementation patterns / interfaces this design should align with, (2) tech debt or constraints relevant to the proposed change, (3) integration points the change will need to honor. Quote file:line for the most load-bearing findings.
 
 Wait for the findings summary before drafting. Use the summary in main context — do not load the raw exploration output.
+
+## Step 3.5 — Constraints interview (skip-when-covered)
+
+Before drafting, identify constraints the design must honor that aren't already captured in `proposal.md`, the deltas, or `.sdlc/steering/`. Ask only the questions whose answers are genuinely missing — skip silently when context already supplies them.
+
+Candidate questions, asked one at a time, with your recommended answer based on codebase or steering evidence:
+
+- **Budgets.** Are there latency, throughput, memory, or cost ceilings this design must fit under?
+- **Tech preferences.** Anything you want to use here, or deliberately avoid? (Library choices, persistence strategy, sync vs async.)
+- **Pattern alignment.** Existing patterns in the codebase to honor, or seams you want to deliberately break from?
+- **Integration shape.** External systems or sibling capabilities this needs to talk to — sync calls, events, batch?
+- **Reversibility appetite.** Are you willing to take a one-way decision here for speed, or does this need to be swappable later?
+
+Stop as soon as remaining questions would be answered by content already in scope. If proposal/deltas/steering cover all five categories, skip the step entirely.
 
 ## Step 4 — Draft design in memory
 
@@ -118,6 +134,23 @@ Run mechanical checks first, then judgment checks. Repair locally and re-run on 
 - If a check fails and the issue is local to the draft, fix it and re-run the gate.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue.
 - If the gate exposes a real **spec gap** (deltas can't support a coherent design), stop and ask the user to revise via `/spec-requirements` rather than papering over in the design.
+
+## Step 5.5 — Grill-me (mandatory)
+
+Run the `grill-me` skill against the in-memory design draft. This step **cannot** be skipped, regardless of change size.
+
+Walk each branch of the decision tree. Focus on attacks that the mechanical gate cannot make:
+
+- **Hidden assumptions in `## Approach`** — control flow that "obviously works" but only under conditions the design doesn't state.
+- **Ownership drift in `## File Structure Plan`** — files placed in a capability the user wouldn't have chosen, or files that imply a refactor the proposal didn't authorize.
+- **Risks without mitigations** — every `## Risks` bullet should name a mitigation, an accepted budget, or a follow-up trigger; flag bullets that just describe pain.
+- **ADR qualification** — decisions in `## Approach` that meet all three ADR criteria (hard to reverse + surprising + real trade-off) but weren't drafted as an ADR. Conversely, draft ADRs that don't meet all three should fold back into prose.
+- **Tradeoff tensions** — pairs of design choices that pull against each other (latency vs durability, simplicity vs extensibility); force a resolution.
+- **Goals/Non-Goals overlap** — anything that reads as both in and out of scope.
+
+Ask one question at a time, with your recommended answer grounded in codebase evidence, deltas, or steering. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+
+If grill-me produced changes, re-run Step 5's mechanical checks once more.
 
 ## Step 6 — Finalize
 

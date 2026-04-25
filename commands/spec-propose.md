@@ -125,7 +125,7 @@ Created .sdlc/changes/<slug>/
   design.md                           skeleton
   tasks.md                            skeleton
 
-Next: /spec-requirements to walk the TODOs and seed the first capability + requirement.
+Next: /spec-requirements to interview, draft requirements, and seed the first capability delta.
 ```
 
 ## Constraints
