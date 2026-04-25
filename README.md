@@ -31,7 +31,7 @@ This creates `.sdlc/` and appends a workflow section to `CLAUDE.md` so Claude di
 
 ```
 /spec-propose "support TOTP for admin accounts"
-# answer the 3-question interview; review proposal.md and the initial delta
+# answer one question (the problem); review proposal.md
 /spec-requirements          # refine narrative and deltas
 /spec-design                # Approach, Goals/Non-Goals, File Structure Plan, Risks
 /spec-tasks                 # decompose into vertical slices
@@ -105,7 +105,7 @@ ai-sdlc/
 | `/sdlc-init` | Bootstrap `.sdlc/` and update CLAUDE.md. |
 | `/sdlc-project-init [<desc>]` | Greenfield interview — populates `steering/product.md` and `tech.md`. |
 | `/sdlc-steering` | Bootstrap or sync `steering/` from the codebase (existing-code projects). |
-| `/spec-propose ["<seed>"]` | 3-question interview; derives the slug and creates the change folder with first-draft artifacts. |
+| `/spec-propose ["<seed>"]` | One-question interview (the problem); derives the slug and creates the change folder with a proposal stub plus design/tasks skeletons. Capability + first requirement are seeded by `/spec-requirements`. |
 | `/spec-requirements [<slug>]` | Refine proposal narrative + deltas. |
 | `/spec-design [<slug>]` | Author Approach, Goals/Non-Goals, File Structure Plan, Risks; optionally draft ADRs. |
 | `/spec-tasks [<slug>]` | Decompose into vertical slices. |

@@ -14,14 +14,14 @@ User input: $ARGUMENTS
   - If exactly one folder exists under `.sdlc/changes/` (excluding `archive/`), use it.
   - Otherwise list the active changes and ask.
 
-Pre-flight: the resolved folder must contain `proposal.md` and at least one `specs/<capability>/delta.md`. If not, suggest `/spec-propose`.
+Pre-flight: the resolved folder must contain `proposal.md`. If not, suggest `/spec-propose`. The folder may have zero `specs/<capability>/delta.md` files right after `/spec-propose` — Step 3 seeds the first delta lazily.
 
 ## Step 2 — Read current state
 
 Read into context:
 - `.sdlc/changes/<slug>/proposal.md`
-- Every `.sdlc/changes/<slug>/specs/*/delta.md`
-- For each capability touched: `.sdlc/specs/<capability>/spec.md` and `.sdlc/specs/<capability>/GLOSSARY.md` (for slug resolution on MODIFIED/REMOVED entries and term references). These may not yet exist for newly-introduced capabilities.
+- Every `.sdlc/changes/<slug>/specs/*/delta.md` (may be zero — that's fine).
+- For each capability already touched: `.sdlc/specs/<capability>/spec.md` and `.sdlc/specs/<capability>/GLOSSARY.md` (for slug resolution on MODIFIED/REMOVED entries and term references). These may not yet exist for newly-introduced capabilities.
 
 ## Step 3 — Draft refinements in memory
 
@@ -32,6 +32,12 @@ Walk the user through the changes interactively. Hold proposed edits **in memory
 - Required sections must end TODO-free for the gate to pass.
 
 ### Each `delta.md`
+- If the change has **no ADDED requirements across any delta** (typical right after `/spec-propose`): walk the user through the first one.
+  1. Ask: "Describe the smallest behavior or invariant this change must guarantee. Triggered behavior (when X happens, then Y) becomes a Scenario; an always-true rule (the system shall Z) becomes a Criteria."
+  2. From the answer, derive a title, a `req-` slug, the Scenario or Criteria block, and any `[[term-slug]]` references.
+  3. If no `specs/<capability>/delta.md` exists yet, infer the most likely **bounded-context capability** from `proposal.md ## Why` plus the requirement just drafted (e.g. `auth`, `billing`, `notifications`, `search`) and ask: ``This looks like it touches `<suggested>`. Confirm, or name a different capability slug.`` The slug must be lowercase-dashed.
+  4. Hold a fresh `delta.md` for that capability in memory (instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md`, with `{{CAPABILITY}}` substituted) and drop the requirement into its `## ADDED Requirements` block.
+  5. If the answer to step 1 is too vague, ask one follow-up; if still vague, stop and tell the user the change needs a concrete first requirement before proceeding.
 - Audit `## ADDED Requirements`: each must have `### Requirement: TITLE {#req-slug}`, `**Why:**`, and either `#### Scenario:` (with `WHEN`/`THEN`) or `#### Criteria` (bullet invariants). Slugs are immutable once introduced.
 - Audit `## MODIFIED Requirements`: every slug must already exist in the corresponding living `spec.md`. If not, propose moving it to ADDED.
 - Audit `## REMOVED Requirements`: same — slug must exist in living spec.
@@ -48,12 +54,13 @@ Run the mechanical checks first (no judgment), then the judgment checks. Repair 
 ### Mechanical checks (must all pass)
 
 1. `proposal.md` draft contains `## Why`, `## What Changes`, `## Scope`, `## Rollout`. None contains `<!-- TODO -->`.
-2. Every requirement slug uses `{#req-slug}` and matches `^req-[a-z0-9][a-z0-9-]*$`.
-3. Every term slug uses `{#term-slug}` and matches `^term-[a-z0-9][a-z0-9-]*$`.
-4. No two ADDED requirement slugs collide across the change's deltas.
-5. Every MODIFIED requirement slug exists in the corresponding living `spec.md`.
-6. Every REMOVED requirement slug exists in the corresponding living `spec.md`.
-7. Every `[[term-slug]]` reference resolves (living `GLOSSARY.md` OR the same change's `## ADDED Terms`).
+2. The change has at least one ADDED requirement across its deltas (a change with zero requirements cannot advance to `/spec-design`).
+3. Every requirement slug uses `{#req-slug}` and matches `^req-[a-z0-9][a-z0-9-]*$`.
+4. Every term slug uses `{#term-slug}` and matches `^term-[a-z0-9][a-z0-9-]*$`.
+5. No two ADDED requirement slugs collide across the change's deltas.
+6. Every MODIFIED requirement slug exists in the corresponding living `spec.md`.
+7. Every REMOVED requirement slug exists in the corresponding living `spec.md`.
+8. Every `[[term-slug]]` reference resolves (living `GLOSSARY.md` OR the same change's `## ADDED Terms`).
 
 ### Judgment checks (apply after mechanical pass)
 
@@ -106,7 +113,7 @@ Resolve and re-run /spec-requirements.
 
 - **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/spec-propose "<one-line seed>"`.
 - **Multiple active changes (ambiguous).** `$ARGUMENTS` empty and >1 active change → list active slugs and ask the user to specify.
-- **No deltas yet.** `proposal.md` exists but no `specs/*/delta.md` → ask whether to create one (suggest the capability slug from the proposal narrative).
+- **No deltas yet.** `proposal.md` exists but no `specs/*/delta.md` → expected state right after `/spec-propose`. Step 3 seeds the first capability + requirement interactively.
 - **New capability requested.** User wants a delta for a capability not yet in the change → confirm the slug, then create the delta in memory.
 - **Slug clash.** User proposes ADDING a slug that already exists (in living spec OR in this change's deltas) → reject; ask for a different slug.
 - **Unresolved term reference.** A `[[term-slug]]` in scenario text doesn't resolve → prompt: define in `## ADDED Terms`, fix the reference, or remove.
