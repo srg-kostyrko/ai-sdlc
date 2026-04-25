@@ -127,7 +127,7 @@ If ADR candidates were flagged in Phase 3, list them again under `ADR candidates
 
 End with:
 
-> Run /spec-propose <slug> "<description>" to start your first change.
+> Run /spec-propose "<one-line seed>" to start your first change.
 
 ## Constraints
 

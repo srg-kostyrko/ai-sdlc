@@ -104,7 +104,7 @@ Resolve and re-run /spec-requirements.
 
 ## Error scenarios
 
-- **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/spec-propose <slug> "<description>"`.
+- **Missing change folder.** `.sdlc/changes/<slug>/` does not exist → stop, suggest `/spec-propose "<one-line seed>"`.
 - **Multiple active changes (ambiguous).** `$ARGUMENTS` empty and >1 active change → list active slugs and ask the user to specify.
 - **No deltas yet.** `proposal.md` exists but no `specs/*/delta.md` → ask whether to create one (suggest the capability slug from the proposal narrative).
 - **New capability requested.** User wants a delta for a capability not yet in the change → confirm the slug, then create the delta in memory.

@@ -49,7 +49,7 @@ This project uses ai-sdlc. The living specification is in `.sdlc/specs/`, organi
 **Project-wide context** lives in `.sdlc/steering/` (`product.md`, `structure.md`, `tech.md`). Populate via `/sdlc-project-init` (greenfield) or `/sdlc-steering` (existing code); commands read these when authoring designs and grounding answers.
 
 **When proposing or implementing changes:**
-- Start a change with `/spec-propose <slug> "<one-line description>"`.
+- Start a change with `/spec-propose "<one-line seed>"` (the seed is optional; `/spec-propose` runs a short interview and derives the slug).
 - Iterate with `/spec-requirements`, `/spec-design`, `/spec-tasks`.
 - Generate the validation skeleton with `/spec-validate`.
 - Implement one vertical slice at a time with `/spec-impl-task <task-id>`.
@@ -74,7 +74,7 @@ Print a short summary of what was created vs already present, e.g.:
 CLAUDE.md:             appended ai-sdlc block
 Next:                  /sdlc-project-init  (greenfield, no source files yet)
                   or:  /sdlc-steering      (existing code — bootstrap from codebase)
-                  or:  /spec-propose <slug> "<description>"  (start a change directly; populate steering later)
+                  or:  /spec-propose "<one-line seed>"     (start a change directly; populate steering later)
 ```
 
 ## Constraints
