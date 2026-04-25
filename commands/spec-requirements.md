@@ -94,6 +94,7 @@ Run mechanical checks first, then judgment checks. Auto-repair within bounds; su
 3. Each requirement's `**Why:**` ties back to `proposal.md ## Why` or `## What Changes`.
 4. Per-capability deltas are coherent: every term in a scenario is pre-existing or has an `## ADDED Terms` entry; no orphans.
 5. `proposal.md ## What Changes` lists at least one item that maps to each capability whose delta is non-empty.
+6. Each scenario and criterion is verifiable from the subject's external boundary — observable behavior, externally visible state, or a published contract. Internal implementation choices (library, algorithm, internal schema field, internal method name) belong in `design.md`. Carve-out: when the change's purpose is to expose a contract to outside callers (new HTTP endpoint, wire format, CLI surface, SDK signature), naming the contract shape directly is correct.
 
 ### Repair loop
 
@@ -112,6 +113,7 @@ Walk each branch of the decision tree:
 - **Invariant gaps** — implicit assumptions that should be explicit `#### Criteria` bullets.
 - **Term collisions** — domain words used in two senses, terms that should be split or merged.
 - **Tradeoff pressure** — where two requirements pull against each other, force a resolution.
+- **Design leak** — items that name an internal implementation choice (library, algorithm, internal schema field, internal method name) where an observable property would describe the same requirement. Restate as observable, or defer to `design.md`. Skip this branch for items that name a contract this change exposes publicly.
 
 Ask one question at a time, with your recommended answer grounded in codebase evidence or `proposal.md`. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
 
