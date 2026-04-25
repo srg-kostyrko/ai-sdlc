@@ -1,0 +1,9 @@
+{
+  "name": "ai-sdlc",
+  "version": "0.1.0",
+  "description": "AI-assisted SDLC tooling for Claude Code",
+  "author": {
+    "name": "Sergii Kostyrko",
+    "email": "srg.kostyrko@gmail.com"
+  }
+}

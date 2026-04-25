@@ -1,0 +1,15 @@
+{
+  "name": "ai-sdlc",
+  "owner": {
+    "name": "Sergii Kostyrko",
+    "email": "srg.kostyrko@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "ai-sdlc",
+      "source": ".",
+      "description": "AI-assisted SDLC tooling for Claude Code",
+      "version": "0.1.0"
+    }
+  ]
+}
