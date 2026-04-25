@@ -21,7 +21,7 @@ No slug is taken from arguments. The slug is derived after the interview (Step 4
 
 ## Step 3 — Interview
 
-Ask one question and wait for the answer. Hold the answer in memory.
+Ask Q1 and wait for the answer. Then classify it before writing.
 
 ### Q1 — Problem
 
@@ -29,12 +29,50 @@ Ask: "What's broken or missing today, and why does it need to change now? 2–3 
 
 If a seed was provided, prefix the question with `You said: "<seed>". Expand:` so the user can build on their original phrasing.
 
-The answer is the only content that gets written into `proposal.md ## Why`. If the user cannot articulate a problem, stop and tell them `/spec-propose` needs a concrete motivation — do not seed `## Why` with a TODO.
+### Classify the answer
+
+Decide whether the answer reads as a **problem** (names pain, friction, or a gap) or a **solution** (names a thing to add/build/change without stated pain).
+
+Solution-shaped signals:
+- Leads with verbs like "add", "build", "introduce", "implement", "refactor to", "migrate to"
+- Names a concrete artifact (library, pattern, module) without naming what it fixes
+- No pain language ("hard to", "duplicated", "breaks", "can't", "slow", "fragile", "blocks")
+
+If problem-shaped → carry the answer to Step 6 as `## Why`.
+
+If solution-shaped → Step 3a.
+
+### Step 3a — Investigate and suggest motivations
+
+The user named a solution but not the underlying motivation. Help them surface it rather than bouncing them.
+
+1. Dispatch an Explore subagent (medium thoroughness) scoped to the user's answer + seed. Goal: find concrete pain in the codebase that this solution would plausibly address — tight coupling, duplicated wiring, test friction, awkward extension points, missing seams, etc. Require file paths and line numbers.
+
+2. Present 2–3 candidate motivations grounded in that evidence:
+
+   ```
+   You named a solution, not a problem. Here's what the codebase suggests it might be solving:
+
+   1. <one-sentence motivation>
+      Evidence: <path:line>, <path:line>
+
+   2. <one-sentence motivation>
+      Evidence: <path:line>
+
+   3. <one-sentence motivation>
+      Evidence: <path:line>
+
+   Pick a number to use as your motivation, edit one, or write your own.
+   ```
+
+3. The user's selection (or rewrite) becomes `## Why`. Never auto-pick — the user must endorse the motivation.
+
+4. If the user rejects all candidates and still cannot articulate a motivation, stop and tell them `/spec-propose` needs a concrete motivation — do not seed `## Why` with a TODO.
 
 ## Step 4 — Propose change slug
 
-Derive a candidate slug from the answer to Q1:
-- Distill the change into a 2–4 word noun phrase grounded in Q1 (the problem statement).
+Derive a candidate slug from the confirmed motivation (Q1 answer or Step 3a selection):
+- Distill the change into a 2–4 word noun phrase grounded in the motivation.
 - Lowercase + dashes only. Must match `^[a-z0-9][a-z0-9-]*$`.
 - Avoid generic prefixes (`add-`, `fix-`, `update-`) unless the change is genuinely of that shape and no more specific phrasing applies.
 
@@ -96,5 +134,5 @@ Next: /spec-requirements to walk the TODOs and seed the first capability + requi
 - Never overwrite an existing change folder.
 - Slug is always derived and confirmed in Step 4 — never taken from `$ARGUMENTS`.
 - Do not create `specs/` here. The first capability delta is seeded by `/spec-requirements`.
-- `## Why` is sourced from Q1 only — no fabricated motivation, no TODO.
+- `## Why` is always user-confirmed: either Q1 directly, or a candidate motivation the user accepted/edited in Step 3a. No fabricated motivation, no TODO.
 - `## What Changes`, `## Scope`, `## Rollout`, design content, task breakdowns, capability decisions, and the first requirement are deferred to their own commands. Do not pre-fill them here.
