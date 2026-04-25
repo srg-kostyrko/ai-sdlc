@@ -115,7 +115,7 @@ Walk each branch of the decision tree:
 - **Tradeoff pressure** — where two requirements pull against each other, force a resolution.
 - **Design leak** — items that name an internal implementation choice (library, algorithm, internal schema field, internal method name) where an observable property would describe the same requirement. Restate as observable, or defer to `design.md`. Skip this branch for items that name a contract this change exposes publicly.
 
-Ask one question at a time, with your recommended answer grounded in codebase evidence or `proposal.md`. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+Ask one question at a time, with your recommended answer grounded in codebase evidence or `proposal.md`. Label each question by its branch (e.g. `Design leak — Q1`, `Design leak — Q2`, then `Invariant gaps — Q1`). Question count is open — keep going within a branch until it resolves, then move to the next. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
 
 If grill-me produced changes, re-run Step 5's mechanical checks once more (no judgment-loop re-run — grill-me is the judgment loop).
 
