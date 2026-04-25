@@ -8,7 +8,7 @@ You are loading ai-sdlc spec context to ground the current response.
 ## When this skill applies
 
 The project's working directory has `.sdlc/specs/` AND the user's request involves:
-- A feature, requirement, capability name, or `[[term]]` reference.
+- A feature, requirement, capability name, or domain term (Title Case in prose, or opt-in `[[slug]]`).
 - Modifying code that maps to a bounded context.
 - Asking about behavior, invariants, or rationale.
 

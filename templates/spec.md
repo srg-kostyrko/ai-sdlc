@@ -17,7 +17,7 @@
 **Why:** one-line motivation.
 
 #### Scenario: NAME
-- WHEN [[some-term]] does X
+- WHEN Some Term does X
 - THEN observable outcome
 - AND further outcome
 

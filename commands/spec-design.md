@@ -25,14 +25,13 @@ Refuse to proceed unless ALL hold. Print specific failures and stop on miss.
 3. None of those sections contains `<!-- TODO -->` markers.
 4. At least one `.sdlc/changes/<slug>/specs/*/delta.md` exists with a non-empty ADDED, MODIFIED, or REMOVED Requirements block.
 5. Every requirement slug in the deltas matches `^req-[a-z0-9-]+$`.
-6. Every `[[term-slug]]` resolves (living glossary OR same-change `## ADDED Terms`).
 
 If a gate fails, format the report as:
 
 ```
 /spec-design refused. Reason(s):
 - proposal.md:14  unresolved <!-- TODO --> in ## Scope
-- specs/auth/delta.md:23  term [[principal]] is not defined
+- specs/auth/delta.md:23  req- slug uses uppercase characters
 Run /spec-requirements to resolve.
 ```
 

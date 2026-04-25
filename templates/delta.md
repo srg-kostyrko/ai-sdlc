@@ -11,11 +11,14 @@
 **Why:** one-line motivation.
 
 #### Scenario: Name
-- WHEN [[term-slug]] triggers something
+- WHEN Domain Noun triggers something
 - THEN observable outcome
 
 #### Criteria
 - The [System] shall [action]   (EARS-Ubiquitous form: explicit subject + shall + action; avoid passive voice)
+
+Term references: write domain terms in Title Case prose (Domain Noun, Access Token).
+Glossary entries are the contract; opt-in [[slug]] markup is allowed when prose is ambiguous.
 -->
 
 ## MODIFIED Requirements

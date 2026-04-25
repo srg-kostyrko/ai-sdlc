@@ -2,7 +2,7 @@
 
 <!-- This file is the current truth for terms used in the {{CAPABILITY}} capability. -->
 <!-- Do not edit by hand. Changes flow in via /spec-archive merging deltas. -->
-<!-- Reference terms in scenarios as [[term-slug]]. -->
+<!-- Scenarios reference terms as Title Case prose (e.g. Access Token). -->
 
 ## Terms
 

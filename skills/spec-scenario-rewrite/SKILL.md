@@ -1,6 +1,6 @@
 ---
 name: spec-scenario-rewrite
-description: Use this skill when the user asks to convert prose acceptance criteria into structured `WHEN`/`THEN` scenarios for an ai-sdlc requirement, with phrasings like "rewrite this as a scenario", "convert to WHEN/THEN", "structure this as Gherkin", or "make this a scenario". Returns properly formatted `#### Scenario:` blocks with `[[term-slug]]` markup; declines to force the format on invariant statements that should be `#### Criteria` instead.
+description: Use this skill when the user asks to convert prose acceptance criteria into structured `WHEN`/`THEN` scenarios for an ai-sdlc requirement, with phrasings like "rewrite this as a scenario", "convert to WHEN/THEN", "structure this as Gherkin", or "make this a scenario". Returns properly formatted `#### Scenario:` blocks with domain terms in Title Case prose; declines to force the format on invariant statements that should be `#### Criteria` instead.
 ---
 
 You are converting prose into structured scenario format.
@@ -24,12 +24,12 @@ User explicitly asks for scenario formatting. Typical phrasings include "rewrite
    - **THEN:** the primary observable outcome.
    - **AND (after THEN):** secondary outcomes — state changes, side effects, audit log entries, emitted events.
 
-4. **Apply term markup.** Every domain-specific noun phrase becomes `[[term-slug]]`. If a term isn't in glossary, note it (the user can run `/spec-requirements` to add to `## ADDED Terms`, or invoke the `spec-glossary-suggest` skill).
+4. **Mark domain terms.** Every domain-specific noun phrase appears in Title Case prose (User, Access Token, Recovery Code). Reach for opt-in `[[slug]]` markup only when prose is genuinely ambiguous. If a term isn't in glossary, note it (the user can run `/spec-requirements` to add to `## ADDED Terms`, or invoke the `spec-glossary-suggest` skill).
 
 5. **Produce the scenario:**
    ```
    #### Scenario: <short imperative name describing the situation>
-   - WHEN [[user]] does X
+   - WHEN User does X
    - AND <additional precondition>
    - THEN <observable outcome>
    - AND <secondary outcome>
@@ -49,5 +49,5 @@ User explicitly asks for scenario formatting. Typical phrasings include "rewrite
 
 - Do not invent preconditions or outcomes the prose did not state. If something is missing, ask.
 - Do not force WHEN/THEN format onto invariants; degrade gracefully to `#### Criteria`.
-- Do not introduce new terms without flagging — wrap as `[[term-slug]]` and surface to the user.
+- Do not introduce new terms silently — surface any Title Case domain noun that lacks a glossary entry so the user can add one.
 - Do not modify files; return the formatted block as a response so the user can paste it into the right delta.

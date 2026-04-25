@@ -51,13 +51,13 @@ Hold all edits in memory only. Do not write to disk until Step 9.
 - For each behavior the user described, draft a requirement:
   - Title (short noun phrase) and `req-<slug>` (lowercase-dashed).
   - `**Why:**` — one line tying the requirement back to `proposal.md ## Why` or `## What Changes`.
-  - **Triggered behavior** → `#### Scenario:` block with `WHEN [[term-slug]] …` / `THEN observable outcome`.
+  - **Triggered behavior** → `#### Scenario:` block with `WHEN <Domain Noun in Title Case> …` / `THEN observable outcome`. Use plain Title Case for domain terms; reach for opt-in `[[slug]]` markup only when prose would be ambiguous.
   - **Always-true rule** → `#### Criteria` bullet in EARS-Ubiquitous form (`The [System] shall [action]`). For full rules read `${CLAUDE_PLUGIN_ROOT}/guidelines/criterion-phrasing.md`.
 - Place each in the right block:
   - `## ADDED Requirements` — slug not yet in the living spec.
   - `## MODIFIED Requirements` — slug already exists in the corresponding living `spec.md`.
   - `## REMOVED Requirements` — slug exists in living spec and this change drops it.
-- For domain nouns surfacing in scenarios, draft `## ADDED Terms` entries (`### Term: Name {#term-slug}` + `**Definition:**` + `**Notes:**`). Pre-existing terms in living `GLOSSARY.md` need no entry — just reference them with `[[term-slug]]`.
+- For domain nouns surfacing in scenarios, draft `## ADDED Terms` entries (`### Term: Name {#term-slug}` + `**Definition:**` + `**Notes:**`). Pre-existing terms in living `GLOSSARY.md` need no entry — reference them by Title Case name.
 
 ### Confirm capability inference
 
@@ -85,7 +85,7 @@ Run mechanical checks first, then judgment checks. Auto-repair within bounds; su
 5. No two ADDED requirement slugs collide across the change's deltas.
 6. Every MODIFIED requirement slug exists in the corresponding living `spec.md`.
 7. Every REMOVED requirement slug exists in the corresponding living `spec.md`.
-8. Every `[[term-slug]]` reference resolves (living `GLOSSARY.md` OR the same change's `## ADDED Terms`).
+8. Every opt-in `[[slug]]` reference (if any are used) resolves (living `GLOSSARY.md` OR the same change's `## ADDED Terms`).
 
 ### Judgment checks (apply after mechanical pass)
 
@@ -122,9 +122,9 @@ If grill-me produced changes, re-run Step 5's mechanical checks once more (no ju
 ## Step 7 — Glossary sweep
 
 Invoke `spec-glossary-suggest` against each in-memory delta draft. For each surfaced candidate:
-- **Unresolved `[[term]]`** — typo or genuinely missing entry. Fix the markup or add to `## ADDED Terms`.
-- **Capitalized phrase, likely term** — wrap as `[[term-slug]]` and add to `## ADDED Terms`.
+- **Capitalized phrase, likely term** — add an entry to `## ADDED Terms` (the prose reference is already correct).
 - **Capitalized phrase, low-confidence** — leave alone unless the user flags it.
+- **Unresolved opt-in `[[slug]]`** (rare) — typo or genuinely missing entry. Fix the markup or add to `## ADDED Terms`.
 
 Apply changes to the in-memory draft. Skip if zero candidates surface.
 
