@@ -1,6 +1,6 @@
 {
   "name": "ai-sdlc",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "AI-assisted SDLC tooling for Claude Code",
   "author": {
     "name": "Sergii Kostyrko",

@@ -10,7 +10,7 @@ User input: $ARGUMENTS
 ## Step 1 — Parse and resolve
 
 Parse:
-- `task-id`: required. Format `<group>.<task>` (e.g. `1.2`, `2.1`). Reject other formats.
+- `task-id`: required. A positive integer matching the task's position in `tasks.md` document order (e.g. `1`, `2`, `7`). Reject other formats.
 - `slug`: optional.
 
 Resolve the slug:

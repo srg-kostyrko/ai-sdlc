@@ -46,14 +46,13 @@ The hard discipline: **every task must satisfy at least one requirement slug**. 
 Decomposition rubric:
 
 1. Identify the smallest set of slices that, taken together, satisfy all ADDED/MODIFIED/REMOVED requirements.
-2. Group slices into ordered groups (`## Group 1`, `## Group 2`, ...). Tasks within a group can run in parallel; groups are sequential.
+2. Order the slices in the document by suggested execution sequence (data-flow or risk-reduction order).
 3. For each task:
    - Title: short imperative phrase describing the user-visible result.
    - `_Capabilities:_` capability slug(s) touched.
    - `_Requirements:_` `req-slug`(s) made true by this task.
    - `_Boundary:_` (optional) file paths or modules touched. Use values from `## File Structure Plan` where possible.
-   - `_Depends:_` task IDs from earlier groups; `—` if none.
-   - Append ` (P)` to the title for parallel-safe tasks within a group.
+   - `_Depends:_` task IDs this task genuinely depends on; `—` if none. Independence is conveyed by `—`.
 4. Each task should be roughly day-sized. If smaller, consider merging; if larger, split into smaller end-to-end slices (not into a slice + a setup task).
 
 Iterate with the user on the rubric output before finalizing.
@@ -69,9 +68,8 @@ Run mechanical checks first, then judgment checks.
 3. Every task has `_Requirements:_` with ≥1 `req-slug`.
 4. Every requirement slug in `_Requirements:_` resolves to an ADDED/MODIFIED slug in this change's deltas OR an existing slug in a living spec.
 5. Every ADDED/MODIFIED requirement slug from the deltas appears in at least one task's `_Requirements:_` (no orphan requirements).
-6. Every `_Depends:_` reference resolves to a task ID in an earlier group.
+6. Every `_Depends:_` reference resolves to a task ID that appears earlier in the document.
 7. No `<!-- TODO -->` markers remain.
-8. Task IDs are unique within the document.
 
 ### Judgment checks (apply after mechanical pass)
 
@@ -79,7 +77,7 @@ Run mechanical checks first, then judgment checks.
 2. **Capability honesty.** `_Capabilities:_` matches the bounded contexts the slice actually touches. A slice that lists `auth, billing` but only modifies `auth` files is mislabeled.
 3. **Boundary alignment.** Where `_Boundary:_` is listed, file paths should appear in `design.md ## File Structure Plan` (or the design plan should be updated to include them — flag, don't silently expand).
 4. **Day-sized target.** Flag any task that visibly exceeds 2–3 days or visibly takes <2 hours; ask whether to split or merge.
-5. **Group structure is sensible.** Tasks in the same group are genuinely parallel-safe (no implicit dependency). Tasks across groups follow real ordering, not arbitrary numbering.
+5. **Dependency honesty.** Every `_Depends:_` entry reflects a real ordering constraint (shared file, build artifact, runtime data). Spurious deps make the work look more sequential than it is; missing deps create silent breakage.
 
 ### Repair loop
 
@@ -94,12 +92,11 @@ Run the `grill-me` skill against the in-memory tasks draft. This step **cannot**
 Walk each branch of the decision tree. Focus on attacks the mechanical gate cannot make:
 
 - **Hidden setup work** — a slice that *looks* vertical but ships nothing user-visible until a later slice arrives. Refold into the first slice that delivers value.
-- **Fake parallelism within a group** — two `(P)` tasks that actually share state, files, or a build artifact. One must depend on the other.
 - **Slice size honesty** — tasks that visibly exceed 2–3 days, or trivially small tasks that should fold into a neighbor. Propose where to cut or merge.
 - **Capability drift** — `_Capabilities:_` lists a context the slice doesn't actually touch, or omits one it does.
 - **Boundary leakage** — `_Boundary:_` files outside the touched capabilities, or files not in `design.md ## File Structure Plan`. Either fix the boundary or update the design.
 - **Orphan or phantom requirements** — an ADDED/MODIFIED slug with no covering task, or a `_Requirements:_` reference that doesn't resolve. Surface as a real spec or design gap, not a slice fabrication.
-- **Sequencing rationale** — group ordering that's arbitrary rather than driven by data flow or risk reduction.
+- **Sequencing rationale** — task order that's arbitrary rather than driven by data flow or risk reduction. Spurious `_Depends:_` chains that pretend ordering exists where it doesn't.
 
 Ask one question at a time, with your recommended answer grounded in design content, deltas, or codebase evidence. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
 
@@ -112,10 +109,9 @@ Once the review gate passes, write the in-memory draft to `.sdlc/changes/<slug>/
 Report:
 
 ```
-tasks.md:                    clean (<N> tasks across <M> groups)
+tasks.md:                    clean (<N> tasks)
 Capabilities covered:        auth, notifications
 Requirements covered:        <N>/<N> ADDED/MODIFIED  (no orphans)
-Parallel-safe tasks:         <count> marked (P)
 Ready for /spec-validate.
 ```
 
