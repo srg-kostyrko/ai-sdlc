@@ -102,8 +102,8 @@ validation.md:               written (<N> rows)
   Stale rows resolved:       <count>   (dropped: <N>, restored: <N>, kept-custom: <N>)
 
 Next:
-  - Tasks unticked: run /spec-impl-task <id> for each. Auto-ticks rows whose tests pass.
-  - Tasks ticked, rows empty: fill _Evidence:_ (manual rows need _Approved:_).
+  - Tasks unticked: run /spec-impl-task <id> for each. The slice records test evidence and ticks green rows.
+  - Tasks ticked, rows still empty: fill _Evidence:_ by hand (manual rows need _Approved:_), or re-run /spec-impl-task <id> if a test now covers the row.
   - All rows green: run /spec-review to audit before /spec-archive.
 ```
 

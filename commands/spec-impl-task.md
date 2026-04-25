@@ -1,5 +1,5 @@
 ---
-description: Implement one vertical-slice task from tasks.md. Auto-ticks validation rows whose referenced tests pass; never auto-ticks the task checkbox.
+description: Implement one vertical-slice task from tasks.md. Records test evidence for in-scope validation rows and auto-ticks the green ones; never auto-ticks the task checkbox.
 argument-hint: <task-id> [<slug>]
 ---
 
@@ -51,19 +51,24 @@ Plan briefly, then implement. Honor:
 
 Write tests as part of the implementation. For scenario rows, prefer integration or system-level tests; unit tests are appropriate for invariant criteria.
 
-## Step 5 — Run tests and identify validation rows
+## Step 5 — Run tests, record evidence, tick green rows
 
 Before any "tests passed" claim or auto-tick decision, follow the discipline in `${CLAUDE_PLUGIN_ROOT}/guidelines/verification-before-completion.md`: run the verification command fresh, read its full output (including exit code and failure count), and only then claim a result. No "should pass", no extrapolation from partial output.
 
 After implementing:
 
 1. Run the project's test suite, scoped if possible to the files you touched. Capture exit code, pass/fail counts, and the full failure list.
-2. For each row in `validation.md` whose `_Evidence:_` line references a test (`_Evidence:_ test://...`):
-   - Check whether that test exists in the codebase and is green in this run.
-   - If yes → tick the row (`- [x]`).
-   - If no → leave unticked.
-3. Manual rows (`_Evidence:_ manual — ...`) are **never** auto-ticked, even if related tests pass. They require human approval via `_Approved:_` line.
-4. Rows whose `_Evidence:_` is empty are left unticked; the human will fill them in `/spec-validate` or directly.
+
+2. For each row in `validation.md` under a requirement listed in this task's `_Requirements:_`, decide what to do based on its current state:
+
+   - **Manual row** (`_Evidence:_ manual — ...`) → never auto-touch. Manual rows always require human `_Approved:_`.
+   - **Test-backed row, evidence empty** → if a test (one you just wrote, or one already in the codebase) demonstrates this scenario or criterion, fill `_Evidence:_ test://<relative-path>#<test name>` pointing at it. If that test is green in this run, tick the row. If red or absent, leave unticked.
+   - **Test-backed row, evidence already populated** (`_Evidence:_ test://...`) → verify the test exists and is green; tick if so, leave unticked otherwise. Do not overwrite an existing pointer unless the referenced test has been removed or renamed.
+   - **No applicable test** → leave `_Evidence:_` empty and unticked. Never invent a test reference.
+
+3. Rows whose requirement is not in this task's `_Requirements:_` are out of scope for this slice — leave them alone, even if a touched test happens to cover them.
+
+You are the one party who knows which test maps to which scenario at the moment of implementation; populate evidence as part of the slice rather than punting to a later human pass.
 
 ## Step 6 — Auto-tick the task checkbox on success
 
@@ -84,10 +89,12 @@ Task <id>: <title>                                  [auto-ticked | left unticked
   Files changed:        <list>
   Tests added/updated:  <list>
   Tests run:            <count> passed, <count> failed
-  Validation rows auto-ticked:
-    - <req-slug> / <scenario or criterion>  (test://...)
-  Validation rows still empty:
-    - <req-slug> / <scenario or criterion>  (no test reference yet)
+  Validation rows newly mapped:
+    - <req-slug> / <scenario or criterion>  (test://...)   [ticked | red]
+  Validation rows already mapped, re-verified:
+    - <req-slug> / <scenario or criterion>  (test://...)   [ticked | red | stale]
+  Validation rows still empty (in scope, no applicable test):
+    - <req-slug> / <scenario or criterion>
 
 Next: review the diff. If issues, re-run /spec-impl-task <id> after telling
       me what to change, or ask me to untick + revise.
@@ -98,5 +105,7 @@ If any test failed or the boundary was violated, surface it prominently — the 
 ## Constraints
 
 - Never tick a manual validation row (`_Evidence:_ manual ...`) automatically. Manual rows always require `_Approved:_ <author> <date>`.
+- Never invent a test reference. Only fill `_Evidence:_ test://...` when the test actually exists in the codebase and demonstrates the scenario or criterion.
+- Only modify validation rows whose requirement is in this task's `_Requirements:_`. Rows for other requirements belong to other slices.
 - Never modify deltas, design, proposal, or living specs from this command. The slice writes code; if you discover a real spec error mid-implementation, stop and ask the user to revise via `/spec-requirements` or `/spec-design`.
 - Never run with `--no-verify`, skip tests, or bypass commit hooks.
