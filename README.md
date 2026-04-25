@@ -25,7 +25,7 @@ Add this repository as a Claude Code plugin (via `/plugin` marketplace install, 
 /sdlc-init
 ```
 
-This creates `.sdlc/` and appends a workflow section to `CLAUDE.md` and `AGENTS.md` so Claude (and other agents) discover the convention.
+This creates `.sdlc/` and appends a workflow section to `CLAUDE.md` so Claude discovers the convention.
 
 ## Quick start
 
@@ -102,7 +102,7 @@ ai-sdlc/
 
 | Command | Purpose |
 |---|---|
-| `/sdlc-init` | Bootstrap `.sdlc/` and update CLAUDE.md / AGENTS.md. |
+| `/sdlc-init` | Bootstrap `.sdlc/` and update CLAUDE.md. |
 | `/sdlc-project-init [<desc>]` | Greenfield interview — populates `steering/product.md` and `tech.md`. |
 | `/sdlc-steering` | Bootstrap or sync `steering/` from the codebase (existing-code projects). |
 | `/spec-propose <slug> "<desc>"` | Create change folder with first-draft artifacts. |

@@ -1,5 +1,5 @@
 ---
-description: Bootstrap the ai-sdlc spec-driven workflow in the current project (creates .sdlc/ tree and appends instructions to CLAUDE.md / AGENTS.md).
+description: Bootstrap the ai-sdlc spec-driven workflow in the current project (creates .sdlc/ tree and appends instructions to CLAUDE.md).
 argument-hint: (no arguments)
 ---
 
@@ -30,15 +30,15 @@ Create these directories (use `mkdir -p`; idempotent):
 
 Do not seed stubs here — the populate commands have richer templates and will write the files when invoked.
 
-## Update CLAUDE.md and AGENTS.md
+## Update CLAUDE.md
 
-For each of `CLAUDE.md` and `AGENTS.md` at the project root:
+For `CLAUDE.md` at the project root:
 
 - If the file does not exist, create it with **only** the marked block below.
 - If the file exists and contains the marker pair `<!-- ai-sdlc:start -->` … `<!-- ai-sdlc:end -->`, **replace** the content between the markers with the block below.
 - If the file exists but has no marker, **append** the marked block (with a leading blank line for separation).
 
-The marked block (identical in both files):
+The marked block:
 
 ```
 <!-- ai-sdlc:start -->
@@ -72,7 +72,6 @@ Print a short summary of what was created vs already present, e.g.:
 ```
 .sdlc/ tree:           created  (specs/, changes/, changes/archive/, decisions/, steering/)
 CLAUDE.md:             appended ai-sdlc block
-AGENTS.md:             created with ai-sdlc block
 Next:                  /sdlc-project-init  (greenfield, no source files yet)
                   or:  /sdlc-steering      (existing code — bootstrap from codebase)
                   or:  /spec-propose <slug> "<description>"  (start a change directly; populate steering later)
@@ -80,6 +79,6 @@ Next:                  /sdlc-project-init  (greenfield, no source files yet)
 
 ## Constraints
 
-- Never delete or overwrite anything outside the `.sdlc/` tree, except the marked block in `CLAUDE.md` / `AGENTS.md`.
+- Never delete or overwrite anything outside the `.sdlc/` tree, except the marked block in `CLAUDE.md`.
 - Never modify files inside `.sdlc/changes/archive/` even on subsequent runs.
 - Do not seed `.sdlc/specs/` with example capabilities; lazy seeding is intentional.
