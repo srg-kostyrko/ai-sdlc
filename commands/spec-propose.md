@@ -1,26 +1,23 @@
 ---
-description: Start a new change proposal. Creates .sdlc/changes/<slug>/ with a minimal proposal, design/tasks skeletons, and an initial delta seeded by a 3-question interview.
-argument-hint: <slug> ["<one-line seed>"]
+description: Start a new change proposal. Runs a 3-question interview, derives a slug, and creates .sdlc/changes/<slug>/ with a minimal proposal, design/tasks skeletons, and an initial delta.
+argument-hint: ["<one-line seed>"]
 ---
 
 You are creating a new ai-sdlc change proposal.
 
 User input: $ARGUMENTS
 
-## Step 1 — Parse and validate arguments
+## Step 1 — Parse arguments
 
-Extract:
-- `slug`: the first whitespace-separated token. Must match `^[a-z0-9][a-z0-9-]*$` (lowercase alphanumeric + dashes; must start alphanumeric). Reject empty, slashes, spaces, uppercase.
-- `seed` (optional): everything after the slug, surrounding quotes stripped. Used only as a phrasing hint in the interview; never written verbatim to disk.
+- `seed` (optional): the full `$ARGUMENTS`, surrounding quotes stripped. Used only as a phrasing hint in the interview; never written verbatim to disk.
 
-If the slug is missing or invalid, print a one-line usage hint and stop:
-`/spec-propose <slug> ["<one-line seed>"]`
+No slug is taken from arguments. The slug is derived after the interview (Step 4) and confirmed by the user.
 
 ## Step 2 — Pre-flight
 
 - Verify `.sdlc/` exists at the working directory. If not: print `Run /sdlc-init first.` and stop.
-- Verify `.sdlc/changes/<slug>/` does NOT exist. If it does: print `Change <slug> already exists.` and stop.
-- Check `.sdlc/changes/archive/` for any folder ending with `-<slug>`. If a match exists, warn the user (slug clashes with archived history) and ask whether to proceed.
+
+(Slug-collision checks happen in Step 4, once a candidate exists.)
 
 ## Step 3 — Interview
 
@@ -54,7 +51,28 @@ From the answer, derive:
 
 If the answer is too vague to ground a single requirement, ask one follow-up. If still vague after the follow-up, stop and tell the user `/spec-propose` needs a concrete first requirement before the change folder is created.
 
-## Step 4 — Create the change folder
+## Step 4 — Propose change slug
+
+Derive a candidate slug from the interview answers:
+- Distill the change into a 2–4 word noun phrase. Prefer the Q3 requirement title; fall back to a phrase grounded in Q1 if the requirement is too narrow to represent the whole change.
+- Lowercase + dashes only. Must match `^[a-z0-9][a-z0-9-]*$`.
+- Avoid generic prefixes (`add-`, `fix-`, `update-`) unless the change is genuinely of that shape and no more specific phrasing applies.
+- Do not include the capability slug as a prefix unless it makes the slug meaningfully clearer.
+
+Run collision checks on the candidate:
+- `.sdlc/changes/<candidate>/` must not exist.
+- `.sdlc/changes/archive/` must not contain any folder ending with `-<candidate>`.
+
+Present to the user:
+
+```
+Proposed slug: <candidate>
+Accept, or name a different slug.
+```
+
+If the user supplies an override: validate against the regex and re-run the collision checks. If a collision is found (active or archived), report it and ask for another. Only proceed once a clean slug is confirmed.
+
+## Step 5 — Create the change folder
 
 ```
 .sdlc/changes/<slug>/
@@ -63,7 +81,7 @@ If the answer is too vague to ground a single requirement, ask one follow-up. If
 
 (Do not create `decisions/` yet — created lazily when an ADR is drafted.)
 
-## Step 5 — Write skeleton
+## Step 6 — Write skeleton
 
 Read each template from `${CLAUDE_PLUGIN_ROOT}/templates/` (this plugin's `templates/` directory; the path can be determined from the location of this command file — its parent's parent is the plugin root). Substitute `{{CHANGE_SLUG}}` with the slug and `{{CAPABILITY}}` with the chosen capability slug.
 
@@ -92,7 +110,7 @@ Adapt `templates/delta.md`:
 - `## ADDED Terms`: one stub entry per `[[term-slug]]` introduced in Q3, with `**Definition:**` and `**Notes:**` (use `<!-- TODO -->` for parts the user did not specify).
 - Keep `## MODIFIED Requirements`, `## REMOVED Requirements`, `## MODIFIED Terms`, `## REMOVED Terms` as the template's empty placeholder blocks.
 
-## Step 6 — Report
+## Step 7 — Report
 
 Print a structured summary:
 
@@ -110,6 +128,7 @@ Next: /spec-requirements to walk the TODOs and audit the delta.
 
 - Never write to `.sdlc/specs/`.
 - Never overwrite an existing change folder.
+- Slug is always derived and confirmed in Step 4 — never taken from `$ARGUMENTS`.
 - Initial delta has exactly one requirement and at most a few stub terms.
 - `## Why` is sourced from Q1 only — no fabricated motivation, no TODO.
 - `## What Changes`, `## Scope`, `## Rollout`, design content, and task breakdowns are deferred to their own commands. Do not pre-fill them here.
