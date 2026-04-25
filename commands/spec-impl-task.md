@@ -1,17 +1,20 @@
 ---
-description: Implement one vertical-slice task from tasks.md. Records test evidence for in-scope validation rows and auto-ticks the green ones; never auto-ticks the task checkbox.
-argument-hint: <task-id> [<slug>]
+description: Implement one or more vertical-slice tasks from tasks.md. Accepts task IDs (1.2) or whole groups (1). Auto-ticks green validation rows and the task checkbox; commits each successful slice.
+argument-hint: <group | task-id>... [<slug>]
 ---
 
-You are implementing one vertical slice of an active change.
+You are implementing one or more vertical slices of an active change.
 
 User input: $ARGUMENTS
 
 ## Step 1 — Parse and resolve
 
-Parse:
-- `task-id`: required. A positive integer matching the task's position in `tasks.md` document order (e.g. `1`, `2`, `7`). Reject other formats.
-- `slug`: optional.
+Parse positional arguments. Each argument is one of:
+- `<group>.<task>` — a single task ID (e.g. `1.2`)
+- `<group>` — every task in that group, expanded in document order (e.g. `1`)
+- A slug — any non-numeric token. At most one slug allowed.
+
+Multiple targets may be passed (e.g. `/ai-sdlc:spec-impl-task 1.2 1.3 2.1`).
 
 Resolve the slug:
 - If a slug is provided, use `.sdlc/changes/<slug>/`. If that folder doesn't exist, list active changes and ask which one.
@@ -19,17 +22,33 @@ Resolve the slug:
   - If exactly one folder exists under `.sdlc/changes/` (excluding `archive/`), use it.
   - Otherwise list the active changes and ask which one.
 
+Resolve the targets:
+- If any target is malformed (not matching `<int>` or `<int>.<int>`, or referencing a non-existent group/task), reject and stop. Do not list tasks.
+- If no targets are given, list **unblocked tasks only** from `tasks.md` — those not yet ticked AND with every `_Depends:_` entry ticked. Show ID, title, `_Requirements:_`, grouped under their `## Group N — <name>` headings. If nothing is unblocked, say whether everything is done or blocked (with the blocking IDs) and stop. Otherwise ask which to implement and stop — do not proceed without explicit targets.
+- Otherwise, expand any group-only target to its constituent task IDs in document order. The result is the **execution list**, in the order the user provided (groups expanded inline at their position).
+
 ## Step 2 — Gate: tasks completeness
 
 Refuse unless ALL hold. Print failures and stop on miss.
 
+**Global checks:**
 1. `.sdlc/changes/<slug>/tasks.md` exists.
 2. `tasks.md` has at least one task.
 3. Every task in `tasks.md` has `_Requirements:_` filled with ≥1 slug.
 4. Every requirement slug in any `_Requirements:_` resolves (delta or living spec).
 5. No `<!-- TODO -->` markers in `tasks.md`.
-6. The requested `task-id` exists in `tasks.md`. Re-running on a task that is already ticked is **allowed** — the slice is re-implemented and the box stays ticked.
-7. All tasks listed in this task's `_Depends:_` are ticked (`- [x]`).
+
+**Per-task checks (apply to each task in the execution list):**
+6. The task ID exists in `tasks.md`. Re-running on a task that is already ticked is **allowed** — the slice is re-implemented and the box stays ticked.
+7. Every task in this task's `_Depends:_` is either already ticked (`- [x]`) OR appears earlier in the execution list.
+
+If any per-task check fails, identify the offending task and stop without implementing anything — don't run a partial batch.
+
+## Step 2.5 — Per-task loop
+
+Steps 3 through 6 run **for each task in the execution list, in order**. After completing one task fully (read context → implement → run tests → record evidence → auto-tick), move to the next.
+
+If any task fails (implementation raises an error, a touched test is red, or boundary was violated), **stop the batch immediately**. The current task's checkbox stays unticked per Step 6; remaining tasks are reported as `skipped` in the final report.
 
 ## Step 3 — Read the task and its context
 
@@ -80,27 +99,45 @@ Validation rows are the contract for "requirements satisfied," not this checkbox
 - Re-run `/ai-sdlc:spec-impl-task <id>` to re-implement (gate allows re-runs; the box stays ticked or re-ticks).
 - Or ask Claude (in conversation) to untick the box and revise.
 
+## Step 6.5 — Commit the slice
+
+If Step 6 ticked the task (clean run, no boundary violation) AND there are uncommitted changes, create one commit. Skip if the box was left unticked or if the working tree has nothing new.
+
+Stage only files this task touched: code, tests, `validation.md` updates, the `tasks.md` tick. Use `git add <path> <path> ...` with explicit paths — never `git add -A` or `git add .`. (If the user had WIP in a touched file, it folds into this commit; that is the user's responsibility to manage before invoking the command.)
+
+Commit message — use a HEREDOC, subject = task title verbatim:
+
+```
+git commit -m "$(cat <<'EOF'
+<task title>
+
+Implements <slug> task <id>. Satisfies <req-slug>[, <req-slug>...].
+
+<optional: 1–2 lines on approach if the diff alone isn't self-explanatory>
+EOF
+)"
+```
+
+Never use `--no-verify`, `--amend`, or skip pre-commit hooks. If a hook fails, address the underlying issue and create a new commit.
+
+For a multi-task batch, each successful task commits as it completes — N successful tasks produce N commits.
+
 ## Step 7 — Report
 
-Print a structured summary:
+Print one block per task in execution order, then a final batch line:
 
 ```
-Task <id>: <title>                                  [auto-ticked | left unticked: <reason>]
-  Files changed:        <list>
-  Tests added/updated:  <list>
-  Tests run:            <count> passed, <count> failed
-  Validation rows newly mapped:
-    - <req-slug> / <scenario or criterion>  (test://...)   [ticked | red]
-  Validation rows already mapped, re-verified:
-    - <req-slug> / <scenario or criterion>  (test://...)   [ticked | red | stale]
-  Validation rows still empty (in scope, no applicable test):
-    - <req-slug> / <scenario or criterion>
+Task <id>: <title>  [✓ ticked | ✗ unticked: <reason> | — skipped]
+  Validation: <ticked>/<in-scope> rows ticked (red: <slug/scenario>, empty: <count>)
+  <if committed>: commit <sha>
+  <if failures>: failing tests: <test://...>
 
-Next: review the diff. If issues, re-run /ai-sdlc:spec-impl-task <id> after telling
-      me what to change, or ask me to untick + revise.
+Batch: <K>/<N> ticked, <S> skipped.
 ```
 
-If any test failed or the boundary was violated, surface it prominently — the task box is left unticked and the report explains why.
+Omit `red:` and `empty:` parentheticals when both are zero. Omit `commit` and `failing tests:` lines when not applicable. The batch line always prints.
+
+Diffs and added/changed test files are intentionally not enumerated — the user has `git diff`. The point of the report is task status, validation outcomes, and commit SHAs.
 
 ## Constraints
 

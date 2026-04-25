@@ -46,14 +46,16 @@ The hard discipline: **every task must satisfy at least one requirement slug**. 
 Decomposition rubric:
 
 1. Identify the smallest set of slices that, taken together, satisfy all ADDED/MODIFIED/REMOVED requirements.
-2. Order the slices in the document by suggested execution sequence (data-flow or risk-reduction order).
-3. For each task:
+2. Cluster slices into logical groups (`## Group N — <name>`). A group collects tasks that share a capability, file area, or theme. Groups carry no execution semantics — `_Depends:_` alone encodes ordering. Name each group by the area of work ("user signup form"), not a phase ("Phase 1", "Setup").
+3. Order groups, and tasks within each group, by suggested execution sequence (data-flow or risk-reduction order).
+4. Assign each task an ID `<group>.<task>` matching its position (e.g. the second task of group 1 is `1.2`).
+5. For each task:
    - Title: short imperative phrase describing the user-visible result.
    - `_Capabilities:_` capability slug(s) touched.
    - `_Requirements:_` `req-slug`(s) made true by this task.
    - `_Boundary:_` (optional) file paths or modules touched. Use values from `## File Structure Plan` where possible.
-   - `_Depends:_` task IDs this task genuinely depends on; `—` if none. Independence is conveyed by `—`.
-4. Each task should be roughly day-sized. If smaller, consider merging; if larger, split into smaller end-to-end slices (not into a slice + a setup task).
+   - `_Depends:_` task IDs this task genuinely depends on (within or across groups); `—` if none. Independence is conveyed by `—`.
+6. Each task should be roughly day-sized. If smaller, consider merging; if larger, split into smaller end-to-end slices (not into a slice + a setup task).
 
 Iterate with the user on the rubric output before finalizing.
 
@@ -63,13 +65,15 @@ Run mechanical checks first, then judgment checks.
 
 ### Mechanical checks (must all pass)
 
-1. The draft has ≥1 task.
-2. Every task has `_Capabilities:_` with ≥1 capability slug.
-3. Every task has `_Requirements:_` with ≥1 `req-slug`.
-4. Every requirement slug in `_Requirements:_` resolves to an ADDED/MODIFIED slug in this change's deltas OR an existing slug in a living spec.
-5. Every ADDED/MODIFIED requirement slug from the deltas appears in at least one task's `_Requirements:_` (no orphan requirements).
-6. Every `_Depends:_` reference resolves to a task ID that appears earlier in the document.
-7. No `<!-- TODO -->` markers remain.
+1. The draft has ≥1 group, and every group has ≥1 task.
+2. Every group has a name (no `<!-- TODO -->` placeholder).
+3. Every task ID is `<group>.<task>` matching its document position; IDs are unique.
+4. Every task has `_Capabilities:_` with ≥1 capability slug.
+5. Every task has `_Requirements:_` with ≥1 `req-slug`.
+6. Every requirement slug in `_Requirements:_` resolves to an ADDED/MODIFIED slug in this change's deltas OR an existing slug in a living spec.
+7. Every ADDED/MODIFIED requirement slug from the deltas appears in at least one task's `_Requirements:_` (no orphan requirements).
+8. Every `_Depends:_` reference resolves to a task ID that appears earlier in the document (within or across groups).
+9. No `<!-- TODO -->` markers remain.
 
 ### Judgment checks (apply after mechanical pass)
 
@@ -78,6 +82,7 @@ Run mechanical checks first, then judgment checks.
 3. **Boundary alignment.** Where `_Boundary:_` is listed, file paths should appear in `design.md ## File Structure Plan` (or the design plan should be updated to include them — flag, don't silently expand).
 4. **Day-sized target.** Flag any task that visibly exceeds 2–3 days or visibly takes <2 hours; ask whether to split or merge.
 5. **Dependency honesty.** Every `_Depends:_` entry reflects a real ordering constraint (shared file, build artifact, runtime data). Spurious deps make the work look more sequential than it is; missing deps create silent breakage.
+6. **Group coherence.** Each group's tasks share a capability, file area, or theme. Group names describe the area of work, not a phase or ordering. Tasks bundled together that don't belong, or tasks split across groups when they share scope, both warrant a re-cluster.
 
 ### Repair loop
 
@@ -96,6 +101,7 @@ Walk each branch of the decision tree. Focus on attacks the mechanical gate cann
 - **Capability drift** — `_Capabilities:_` lists a context the slice doesn't actually touch, or omits one it does.
 - **Boundary leakage** — `_Boundary:_` files outside the touched capabilities, or files not in `design.md ## File Structure Plan`. Either fix the boundary or update the design.
 - **Orphan or phantom requirements** — an ADDED/MODIFIED slug with no covering task, or a `_Requirements:_` reference that doesn't resolve. Surface as a real spec or design gap, not a slice fabrication.
+- **Group coherence** — tasks bundled in one group that don't share capability/area/theme, or related tasks split across groups. Phase-style names ("Phase 1", "Backend setup") that describe ordering rather than the area of work.
 - **Sequencing rationale** — task order that's arbitrary rather than driven by data flow or risk reduction. Spurious `_Depends:_` chains that pretend ordering exists where it doesn't.
 
 Ask one question at a time, with your recommended answer grounded in design content, deltas, or codebase evidence. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
@@ -109,7 +115,7 @@ Once the review gate passes, write the in-memory draft to `.sdlc/changes/<slug>/
 Report:
 
 ```
-tasks.md:                    clean (<N> tasks)
+tasks.md:                    clean (<N> tasks across <M> groups)
 Capabilities covered:        auth, notifications
 Requirements covered:        <N>/<N> ADDED/MODIFIED  (no orphans)
 Ready for /ai-sdlc:spec-validate.
