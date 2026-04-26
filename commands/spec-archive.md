@@ -87,9 +87,9 @@ Append one line to `.sdlc/specs/<capability>/CHANGELOG.md`:
 For each `.sdlc/changes/<slug>/decisions/draft-*.md`:
 
 1. Read the draft. Parse its `Affects:` header.
-2. Choose the target directory:
+2. Choose the target directory and `mkdir -p` it if missing:
    - If `Affects:` says `system-wide`: `.sdlc/decisions/`.
-   - Otherwise (e.g. `Affects: specs/auth — req-...`): the named capability's `.sdlc/specs/<capability>/decisions/`. Create the directory if missing.
+   - Otherwise (e.g. `Affects: specs/auth — req-...`): the named capability's `.sdlc/specs/<capability>/decisions/`.
 3. Determine the next sequence number: scan target dir for files matching `^[0-9]{4}-.*\.md$`, take the max numeric prefix, add 1. Pad to 4 digits. (If empty, start at `0001`.)
 4. New filename: `<NNNN>-<slug-from-draft-filename>.md` (drop the `draft-` prefix).
 5. In the file body, replace the title line `# ADR-{{NUMBER}}: <title>` with `# ADR-<NNNN>: <title>` and set `Status: accepted`.
@@ -100,7 +100,7 @@ If two parallel changes both have draft ADRs, sequence numbers are assigned in a
 ## Step 6 — Archive the change folder
 
 1. Compute archive folder name: `<YYYY-MM-DD>-<slug>` (today's date).
-2. `mkdir .sdlc/changes/archive/<YYYY-MM-DD>-<slug>/`.
+2. `mkdir -p .sdlc/changes/archive/<YYYY-MM-DD>-<slug>/` (the `-p` flag also creates the `archive/` parent if this is the project's first archive).
 3. **Copy** these files into the archive folder:
    - `proposal.md`
    - `design.md`

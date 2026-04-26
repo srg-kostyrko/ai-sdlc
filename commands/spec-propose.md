@@ -105,9 +105,7 @@ If the user supplies an override: validate against the regex and re-run the coll
 
 ## Step 5 — Create the change folder
 
-```
-.sdlc/changes/<slug>/
-```
+`mkdir -p .sdlc/changes/<slug>/` (the `-p` flag also creates the `.sdlc/changes/` parent if this is the project's first change).
 
 (Do not create `specs/` or `decisions/` yet — both are seeded lazily: `specs/<capability>/` by `/ai-sdlc:spec-requirements` when the first requirement lands, `decisions/` when an ADR is drafted.)
 

@@ -43,7 +43,7 @@ For each artifact, focus on patterns that guide future decisions, not exhaustive
 
 Read each template from `${CLAUDE_PLUGIN_ROOT}/templates/steering/`. Substitute placeholder text with extracted content. Omit sections that don't apply (e.g. drop a *Database* section for a CLI tool).
 
-Write to `.sdlc/steering/product.md`, `tech.md`, `structure.md`.
+`mkdir -p .sdlc/steering/`, then write `product.md`, `tech.md`, `structure.md`.
 
 ### Report
 

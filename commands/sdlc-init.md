@@ -11,24 +11,27 @@ You are bootstrapping the ai-sdlc spec-driven workflow in the user's current pro
 
 2. Check whether `.sdlc/` already exists. If yes, the run is **idempotent**: create only what is missing, never delete or overwrite existing files inside `.sdlc/`.
 
-## Create the tree
+## Create the marker directory
 
-Create these directories (use `mkdir -p`; idempotent):
+Create `.sdlc/` itself with `mkdir -p .sdlc` (idempotent). This is the marker that downstream commands check for ("Run `/ai-sdlc:sdlc-init` first" guards).
 
-- `.sdlc/specs/`             — empty; bounded-context capabilities are created lazily on first reference
-- `.sdlc/changes/`           — active change proposals
-- `.sdlc/changes/archive/`   — historical, immutable
-- `.sdlc/decisions/`         — system-wide ADRs only (per-capability ADRs live under `specs/{capability}/decisions/`)
-- `.sdlc/steering/`          — project-wide context (product, structure, tech, tactics)
+Do **not** pre-create subdirectories. The conventional layout is:
+
+- `.sdlc/specs/<capability>/`   — bounded-context capability dirs, lazy-seeded on archive
+- `.sdlc/changes/<slug>/`       — active change folders, created by `/ai-sdlc:spec-propose`
+- `.sdlc/changes/archive/`      — historical, created on first archive
+- `.sdlc/decisions/`            — system-wide ADRs, created when first system-wide ADR promotes
+- `.sdlc/steering/`             — project-wide context, created by `/ai-sdlc:sdlc-project-init` or `/ai-sdlc:sdlc-steering`
+- `.sdlc/research/`             — pre-change research notes, created by `/ai-sdlc:spec-research`
+
+Each command `mkdir -p`s its own target right before writing, so empty placeholder dirs (which git wouldn't track anyway) never appear.
 
 ## Steering directory
 
-`.sdlc/steering/` is created empty. Steering files are populated by:
+Steering files are populated by:
 
 - `/ai-sdlc:sdlc-project-init` — for greenfield projects (no source files yet); guided interview produces `product.md` and `tech.md`.
 - `/ai-sdlc:sdlc-steering` — for projects with existing code; analyzes the codebase to bootstrap `product.md`, `structure.md`, `tech.md`, or syncs them when they exist.
-
-Do not seed stubs here — the populate commands have richer templates and will write the files when invoked.
 
 ## Update CLAUDE.md
 
@@ -70,7 +73,7 @@ This project uses ai-sdlc. The living specification is in `.sdlc/specs/`, organi
 Print a short summary of what was created vs already present, e.g.:
 
 ```
-.sdlc/ tree:           created  (specs/, changes/, changes/archive/, decisions/, steering/)
+.sdlc/:                created  (subdirs created lazily by downstream commands)
 CLAUDE.md:             appended ai-sdlc block
 Next:                  /ai-sdlc:sdlc-project-init  (greenfield, no source files yet)
                   or:  /ai-sdlc:sdlc-steering      (existing code — bootstrap from codebase)

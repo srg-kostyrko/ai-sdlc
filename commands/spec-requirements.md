@@ -138,7 +138,7 @@ After grill-me and glossary sweep, run Step 5's mechanical checks one final time
 Write the in-memory draft to disk:
 
 - `.sdlc/changes/<slug>/proposal.md`
-- Each `.sdlc/changes/<slug>/specs/<capability>/delta.md` (including any newly-introduced capability deltas).
+- Each `.sdlc/changes/<slug>/specs/<capability>/delta.md` (including any newly-introduced capability deltas). `mkdir -p` each `specs/<capability>/` parent before writing — the change folder may not yet contain a `specs/` subtree.
 
 Report:
 

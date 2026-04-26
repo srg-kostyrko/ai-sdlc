@@ -78,7 +78,7 @@ List candidates. Skip silently if none surfaced.
 
 ## Step 3 — Generate artifacts
 
-Generate both files in one pass.
+`mkdir -p .sdlc/steering/`, then generate both files in one pass.
 
 ### `.sdlc/steering/product.md`
 
