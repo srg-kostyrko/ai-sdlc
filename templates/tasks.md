@@ -11,5 +11,4 @@
 - [ ] <!-- TODO: title (short imperative phrase) -->
   _Capabilities:_ <!-- TODO: capability-slug[, capability-slug] -->
   _Requirements:_ <!-- TODO: req-slug[, req-slug] -->
-  _Boundary:_ <!-- optional: file paths this task may touch -->
   _Depends:_ —

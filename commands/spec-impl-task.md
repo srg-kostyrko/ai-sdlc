@@ -50,12 +50,12 @@ Steps 3 through 6 run **for each task in the execution list, in order**. After c
 
 If any task fails (implementation raises an error, or a touched test is red), **stop the batch immediately**. The current task's checkbox stays unticked per Step 6; remaining tasks are reported as `skipped` in the final report.
 
-A boundary expansion (Step 4) is **not** a failure — the task continues, the box ticks, and the expansion is reported. Only halt the batch for a *requested slice merge* (also Step 4), since that needs a fresh execution list.
+A *requested slice merge* (Step 4) also halts the batch, since it needs a fresh execution list.
 
 ## Step 3 — Read the task and its context
 
 Read:
-- The task block in `tasks.md`: title, `_Capabilities:_`, `_Requirements:_`, `_Boundary:_`, `_Depends:_`.
+- The task block in `tasks.md`: title, `_Capabilities:_`, `_Requirements:_`, `_Depends:_`.
 - The relevant delta files for slugs in `_Requirements:_`: `.sdlc/changes/<slug>/specs/<cap>/delta.md` for each cap. Extract the scenarios and criteria the task must make true.
 - `.sdlc/changes/<slug>/design.md` `## Approach` and `## File Structure Plan`.
 - Existing `.sdlc/changes/<slug>/validation.md` — to know which rows correspond to this task's requirements.
@@ -66,12 +66,10 @@ Read:
 
 Plan briefly, then implement. Honor:
 
-- `_Boundary:_` if listed — the **expected** surface, not a fence. If the natural fix requires touching a file outside the boundary (typically: extending an existing abstraction so the slice doesn't have to ship a parallel of it), do that and surface the expansion in the Step 7 report (paths + one-line rationale). The box still ticks; the commit message does not need to mention it.
-- `_Capabilities:_` — implementation should affect only the listed bounded contexts. Capability drift is a stronger signal than boundary drift; if work spills into another bounded context, stop and ask the user before continuing.
+- `_Capabilities:_` — implementation should affect only the listed bounded contexts. If work spills into another bounded context, stop and ask the user before continuing.
 - **Slice merging.** If implementation reveals that the right fix genuinely spans this slice and a later one in the batch — e.g. they share an abstraction that should land in one move — stop and ask the user whether to merge them. Don't silently absorb a downstream slice's scope. If the user agrees, proceed as one combined slice (single commit, both tasks tick).
 - Vertical-slice discipline: at task end, every requirement in `_Requirements:_` should be demonstrably true. Setup work (migrations, scaffolding) folds into this slice — don't defer it.
-
-The trap to avoid: producing a near-duplicate of an existing abstraction inside the boundary because the original lives outside it. A "TODO: unify later" note next to ~10–20 LOC of parallel structure is a sign the boundary should have been widened. Widen it, surface the change.
+- **Reuse over parallel structures.** If the natural fix is to extend an existing abstraction, do that. A "TODO: unify later" note next to ~10–20 LOC of parallel code is the wrong shape — extend the original.
 
 Write tests as part of the implementation. For scenario rows, prefer integration or system-level tests; unit tests are appropriate for invariant criteria.
 
@@ -96,7 +94,7 @@ You are the one party who knows which test maps to which scenario at the moment 
 
 ## Step 6 — Auto-tick the task checkbox on success
 
-If implementation completed without errors AND no test added or modified by this run is failing, **tick the task checkbox** (`- [ ]` → `- [x]`). A recorded boundary expansion (Step 4) does not block the tick.
+If implementation completed without errors AND no test added or modified by this run is failing, **tick the task checkbox** (`- [ ]` → `- [x]`).
 
 If either condition failed (implementation raised an exception, or a touched test is red), **leave the box unticked** and report what blocked the tick.
 
@@ -134,14 +132,13 @@ Print one block per task in execution order, then a final batch line:
 ```
 Task <id>: <title>  [✓ ticked | ✗ unticked: <reason> | — skipped]
   Validation: <ticked>/<in-scope> rows ticked (red: <slug/scenario>, empty: <count>)
-  <if boundary expanded>: boundary expanded: <paths> — <rationale>
   <if committed>: commit <sha>
   <if failures>: failing tests: <test://...>
 
 Batch: <K>/<N> ticked, <S> skipped.
 ```
 
-Omit `red:` and `empty:` parentheticals when both are zero. Omit `boundary expanded`, `commit`, and `failing tests:` lines when not applicable. The batch line always prints.
+Omit `red:` and `empty:` parentheticals when both are zero. Omit `commit` and `failing tests:` lines when not applicable. The batch line always prints.
 
 Diffs and added/changed test files are intentionally not enumerated — the user has `git diff`. The point of the report is task status, validation outcomes, and commit SHAs.
 

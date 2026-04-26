@@ -92,7 +92,7 @@ How the change is built. Components, control flow, data shapes. Reference requir
 **Goals** tie to `proposal.md ## What Changes`. **Non-Goals** explicitly exclude scope that could be misread (future work, integration points deferred, capabilities not touched).
 
 ### `## File Structure Plan`
-Concrete files to create or modify, grouped by component. This is the seed of `_Boundary:_` values in `tasks.md` — vague file plans produce vague tasks. Use file paths, not abstractions.
+Concrete files to create or modify, grouped by component. Vague file plans produce vague tasks. Use file paths, not abstractions.
 
 ### `## Risks`
 What could go wrong. One bullet each: migration concerns, perf budgets, security implications, observability gaps, dependency risks. Include mitigation or accepted budget.

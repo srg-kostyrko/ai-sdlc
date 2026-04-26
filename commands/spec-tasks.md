@@ -33,7 +33,7 @@ If a gate fails, print the file:line and stop. Suggest `/ai-sdlc:spec-design`.
 
 Read into main context:
 
-- `.sdlc/changes/<slug>/design.md` — especially `## Approach` (component flow) and `## File Structure Plan` (the seed of `_Boundary:_` values)
+- `.sdlc/changes/<slug>/design.md` — especially `## Approach` (component flow) and `## File Structure Plan` (the files in scope)
 - All deltas under `.sdlc/changes/<slug>/specs/` — collect every ADDED/MODIFIED/REMOVED requirement slug
 - Existing `.sdlc/changes/<slug>/tasks.md` — used as merge base if present
 
@@ -53,11 +53,8 @@ Decomposition rubric:
    - Title: short imperative phrase describing the user-visible result.
    - `_Capabilities:_` capability slug(s) touched.
    - `_Requirements:_` `req-slug`(s) made true by this task.
-   - `_Boundary:_` (optional) file paths or modules touched. Use values from `## File Structure Plan` where possible.
    - `_Depends:_` task IDs this task genuinely depends on (within or across groups); `—` if none. Independence is conveyed by `—`.
 6. Each task should be roughly day-sized. If smaller, consider merging; if larger, split into smaller end-to-end slices (not into a slice + a setup task).
-
-`_Boundary:_` is a **scope hypothesis**, not a fence. It captures the files the slice is expected to touch given current understanding. During implementation, a slice may legitimately expand its boundary — for example, when honoring it would force a parallel of an existing abstraction. The implementation command (`/ai-sdlc:spec-impl-task`) handles those deviations by recording them, not by halting. Don't try to draw boundaries so tightly that they prevent the natural fix.
 
 Iterate with the user on the rubric output before finalizing.
 
@@ -81,10 +78,9 @@ Run mechanical checks first, then judgment checks.
 
 1. **Vertical-slice integrity.** Reject any task whose effect is only setup, scaffolding, migration, or "preparing X for later" — refold into the first downstream slice. Each task, when complete, should make at least one referenced requirement *demonstrably true*.
 2. **Capability honesty.** `_Capabilities:_` matches the bounded contexts the slice actually touches. A slice that lists `auth, billing` but only modifies `auth` files is mislabeled.
-3. **Boundary alignment.** Where `_Boundary:_` is listed, file paths should appear in `design.md ## File Structure Plan` (or the design plan should be updated to include them — flag, don't silently expand). Boundaries can stay loose where slice scope is genuinely uncertain at planning time; tightness is not the goal.
-4. **Day-sized target.** Flag any task that visibly exceeds 2–3 days or visibly takes <2 hours; ask whether to split or merge.
-5. **Dependency honesty.** Every `_Depends:_` entry reflects a real ordering constraint (shared file, build artifact, runtime data). Spurious deps make the work look more sequential than it is; missing deps create silent breakage.
-6. **Group coherence.** Each group's tasks share a capability, file area, or theme. Group names describe the area of work, not a phase or ordering. Tasks bundled together that don't belong, or tasks split across groups when they share scope, both warrant a re-cluster.
+3. **Day-sized target.** Flag any task that visibly exceeds 2–3 days or visibly takes <2 hours; ask whether to split or merge.
+4. **Dependency honesty.** Every `_Depends:_` entry reflects a real ordering constraint (shared file, build artifact, runtime data). Spurious deps make the work look more sequential than it is; missing deps create silent breakage.
+5. **Group coherence.** Each group's tasks share a capability, file area, or theme. Group names describe the area of work, not a phase or ordering. Tasks bundled together that don't belong, or tasks split across groups when they share scope, both warrant a re-cluster.
 
 ### Repair loop
 
@@ -101,7 +97,6 @@ Walk each branch of the decision tree. Focus on attacks the mechanical gate cann
 - **Hidden setup work** — a slice that *looks* vertical but ships nothing user-visible until a later slice arrives. Refold into the first slice that delivers value.
 - **Slice size honesty** — tasks that visibly exceed 2–3 days, or trivially small tasks that should fold into a neighbor. Propose where to cut or merge.
 - **Capability drift** — `_Capabilities:_` lists a context the slice doesn't actually touch, or omits one it does.
-- **Boundary leakage** — `_Boundary:_` files outside the touched capabilities, or files not in `design.md ## File Structure Plan`. Either fix the boundary or update the design.
 - **Orphan or phantom requirements** — an ADDED/MODIFIED slug with no covering task, or a `_Requirements:_` reference that doesn't resolve. Surface as a real spec or design gap, not a slice fabrication.
 - **Group coherence** — tasks bundled in one group that don't share capability/area/theme, or related tasks split across groups. Phase-style names ("Phase 1", "Backend setup") that describe ordering rather than the area of work.
 - **Sequencing rationale** — task order that's arbitrary rather than driven by data flow or risk reduction. Spurious `_Depends:_` chains that pretend ordering exists where it doesn't.
@@ -146,4 +141,3 @@ Resolve and re-run /ai-sdlc:spec-tasks (or /ai-sdlc:spec-design if a design gap 
 - **Phantom requirement.** A task references a `req-slug` that doesn't exist in any delta or living spec → ask the user: fix the typo, or add the requirement via `/ai-sdlc:spec-requirements`.
 - **Setup-only task proposed.** User wants a task that doesn't satisfy any requirement → refuse; explain the vertical-slice rule; suggest folding into the next slice.
 - **Task too big (3+ days).** Surface and ask whether to split into smaller end-to-end slices (never into slice + setup).
-- **Boundary drift.** `_Boundary:_` references a file not in `design.md ## File Structure Plan` → flag; ask whether to update the design (rerun `/ai-sdlc:spec-design`) or retract the boundary.

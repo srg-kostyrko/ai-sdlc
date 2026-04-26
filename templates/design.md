@@ -17,7 +17,7 @@
 
 ## File Structure Plan
 
-<!-- TODO: files to create or modify, grouped by component. Tasks reference these as _Boundary:_ values. -->
+<!-- TODO: files to create or modify, grouped by component. Concrete paths, not abstractions. -->
 
 ## Risks
 

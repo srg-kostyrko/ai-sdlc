@@ -134,5 +134,5 @@ When a single active change exists, `<slug>` is optional on phase commands.
 ## Conceptual influences
 
 - **OpenSpec** — living-spec-vs-change-proposal model; ADDED/MODIFIED/REMOVED delta grammar.
-- **cc-sdd** — phased pipeline; `_Boundary:_` / `_Depends:_` / parallel-marker task metadata.
+- **cc-sdd** — phased pipeline; structured task metadata (`_Capabilities:_` / `_Requirements:_` / `_Depends:_`).
 - **skills** — ADR criteria (hard to reverse / surprising / real trade-off); structured Nygard ADR format; bounded-context vocabulary discipline.
