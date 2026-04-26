@@ -19,9 +19,23 @@ No slug is taken from arguments. The slug is derived after the interview (Step 4
 
 (Slug-collision checks happen in Step 4, once a candidate exists.)
 
-## Step 3 — Interview
+## Step 3 — Establish the motivation
 
-Ask Q1 and wait for the answer. Then classify it before writing.
+Before asking, check whether the current conversation already contains enough to write `## Why`.
+
+### Step 3.0 — Reuse conversation context when present
+
+You have enough context to skip Q1 when **all** of these hold:
+- The user (in this conversation, not just the seed) has named concrete pain, friction, or a gap — not just a desired solution.
+- A reader who has not seen the conversation could understand *why* this change is needed from 2–3 sentences you can write now.
+- Nothing material is ambiguous (which system, what's broken, why now).
+
+If yes:
+1. Draft `## Why` (2–3 sentences) from the conversation. Use the user's own language where possible; do not invent motivation they did not state.
+2. Show the draft and ask: `Use this as the proposal's "Why", or refine?` Wait for confirmation or edits.
+3. Once confirmed, treat the result as the answer and skip to Step 4. Run the classifier below on the confirmed text — if it reads as solution-shaped after all, fall through to Step 3a.
+
+If conversation context is thin, ambiguous, or only contains a solution shape → ask Q1.
 
 ### Q1 — Problem
 
@@ -134,5 +148,5 @@ Next: /ai-sdlc:spec-requirements to interview, draft requirements, and seed the 
 - Never overwrite an existing change folder.
 - Slug is always derived and confirmed in Step 4 — never taken from `$ARGUMENTS`.
 - Do not create `specs/` here. The first capability delta is seeded by `/ai-sdlc:spec-requirements`.
-- `## Why` is always user-confirmed: either Q1 directly, or a candidate motivation the user accepted/edited in Step 3a. No fabricated motivation, no TODO.
+- `## Why` is always user-confirmed: either reused from conversation context and confirmed in Step 3.0, answered via Q1, or a candidate motivation the user accepted/edited in Step 3a. No fabricated motivation, no TODO.
 - `## What Changes`, `## Scope`, `## Rollout`, design content, task breakdowns, capability decisions, and the first requirement are deferred to their own commands. Do not pre-fill them here.
