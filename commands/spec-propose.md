@@ -110,7 +110,7 @@ Read each template from `${CLAUDE_PLUGIN_ROOT}/templates/` (this plugin's `templ
 
 Adapt `templates/proposal.md`:
 - `## Why`: write the answer to Q1 (lightly cleaned for prose flow; do not add motivation the user did not state).
-- `## What Changes`, `## Scope`, `## Rollout`: leave the template's `<!-- TODO -->` markers untouched. `/ai-sdlc:spec-requirements` walks these next.
+- `## What Changes`, `## Scope`: leave the template's `<!-- TODO -->` markers untouched. `/ai-sdlc:spec-requirements` walks these next.
 
 ### `.sdlc/changes/<slug>/design.md`
 
@@ -126,7 +126,7 @@ Print a structured summary:
 
 ```
 Created .sdlc/changes/<slug>/
-  proposal.md                         Why filled; What Changes / Scope / Rollout TODO
+  proposal.md                         Why filled; What Changes / Scope TODO
   design.md                           skeleton
   tasks.md                            skeleton
 
@@ -141,4 +141,4 @@ Next: /ai-sdlc:spec-requirements <slug> to interview, draft requirements, and se
 - Slug is derived from the motivation in Step 4 — never taken from `$ARGUMENTS`, never interactively confirmed. The user renames with `mv` if the derived slug is wrong.
 - Do not create `specs/` here. The first capability delta is seeded by `/ai-sdlc:spec-requirements`.
 - `## Why` is always user-confirmed: either reused from conversation context and confirmed in Step 3.0, answered via Q1, or a candidate motivation the user accepted/edited in Step 3a. No fabricated motivation, no TODO.
-- `## What Changes`, `## Scope`, `## Rollout`, design content, task breakdowns, capability decisions, and the first requirement are deferred to their own commands. Do not pre-fill them here.
+- `## What Changes`, `## Scope`, design content, task breakdowns, capability decisions, and the first requirement are deferred to their own commands. Do not pre-fill them here.

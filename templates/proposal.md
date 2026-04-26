@@ -1,7 +1,7 @@
 # {{CHANGE_SLUG}}
 
 <!-- Narrative for this change. Formal requirements live in specs/{capability}/delta.md, not here. -->
-<!-- Required sections (gate-checked): Why, What Changes, Scope, Rollout. -->
+<!-- Required sections (gate-checked): Why, What Changes, Scope. -->
 
 ## Why
 
@@ -22,7 +22,3 @@
 
 **Out of scope:**
 - <!-- TODO -->
-
-## Rollout
-
-<!-- TODO: how does this ship? Feature-flagged? Dark-launched? Migrated in stages? Reversible? -->

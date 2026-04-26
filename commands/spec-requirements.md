@@ -36,7 +36,7 @@ Cover, in roughly this order:
 2. **Observable outcomes.** What must be true after the behavior runs that wasn't true before? Concrete, testable.
 3. **Edges and failure modes.** What inputs, states, or timings break the happy path? What should the system do then?
 4. **Invariants.** What must always hold regardless of trigger (e.g. data integrity, security, ordering)?
-5. **Scope boundary and rollout.** What's explicitly *not* in this change? How does it ship — flagged, staged, reversible?
+5. **Scope boundary.** What's explicitly *not* in this change?
 
 Phrase questions in the user's domain language. Provide a recommended answer when you have grounded grounds for one (codebase evidence, prior `proposal.md` content, steering files). Wait for each answer before moving on. Do not ask the user to name `req-` slugs, capability names, or scenario shapes — those come from you in Step 4.
 
@@ -45,7 +45,7 @@ Phrase questions in the user's domain language. Provide a recommended answer whe
 Hold all edits in memory only. Do not write to disk until Step 9.
 
 ### proposal.md
-- Fill `## Why`, `## What Changes`, `## Scope`, `## Rollout` from the interview answers, lightly edited for prose flow. Replace every `<!-- TODO -->` marker. Do not invent motivation the user did not give.
+- Fill `## Why`, `## What Changes`, `## Scope` from the interview answers, lightly edited for prose flow. Replace every `<!-- TODO -->` marker. Do not invent motivation the user did not give.
 
 ### Per-capability deltas
 - Infer the most likely **bounded-context capability** from the interview content (e.g. `auth`, `billing`, `notifications`, `search`). If the change spans more than one capability, hold one `delta.md` per capability in memory, instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md` with `{{CAPABILITY}}` substituted.
@@ -79,7 +79,7 @@ Run mechanical checks first, then judgment checks. Auto-repair within bounds; su
 
 ### Mechanical checks (must all pass)
 
-1. `proposal.md` draft contains `## Why`, `## What Changes`, `## Scope`, `## Rollout`. None contains `<!-- TODO -->`.
+1. `proposal.md` draft contains `## Why`, `## What Changes`, `## Scope`. None contains `<!-- TODO -->`.
 2. The change has at least one ADDED requirement across its deltas.
 3. Every requirement slug uses `{#req-slug}` and matches `^req-[a-z0-9][a-z0-9-]*$`.
 4. Every term slug uses `{#term-slug}` and matches `^term-[a-z0-9][a-z0-9-]*$`.

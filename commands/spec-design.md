@@ -21,7 +21,7 @@ User input: $ARGUMENTS
 Refuse to proceed unless ALL hold. Print specific failures and stop on miss.
 
 1. `.sdlc/changes/<slug>/proposal.md` exists.
-2. `proposal.md` contains the required sections `## Why`, `## What Changes`, `## Scope`, `## Rollout`.
+2. `proposal.md` contains the required sections `## Why`, `## What Changes`, `## Scope`.
 3. None of those sections contains `<!-- TODO -->` markers.
 4. At least one `.sdlc/changes/<slug>/specs/*/delta.md` exists with a non-empty ADDED, MODIFIED, or REMOVED Requirements block.
 5. Every requirement slug in the deltas matches `^req-[a-z0-9-]+$`.
