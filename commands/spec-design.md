@@ -46,7 +46,9 @@ Read into main context:
 - Existing ADRs under `.sdlc/specs/<capability>/decisions/` and `.sdlc/decisions/` so the design doesn't contradict prior decisions
 - **Project-wide steering** under `.sdlc/steering/`: read `product.md` (project goals + value), `structure.md` (module layout + conventions), `tech.md` (stack + constraints). Skip files that don't exist or contain only template placeholder text — those are unpopulated.
 - **Brief-writing guideline:** read `${CLAUDE_PLUGIN_ROOT}/guidelines/durable-briefs.md` before drafting — its rules apply to `## Approach`, `## File Structure Plan`, and `## Risks`.
-- `.sdlc/changes/<slug>/findings.md` if present. Open `DESIGN-GAP` findings drive the constraints interview in Step 3.5 — turn each into a targeted question before asking the generic ones.
+- `.sdlc/changes/<slug>/findings.md` if present. Open `DESIGN-GAP` findings drive the constraints interview in Step 3.5 — turn each into a targeted question before asking the generic ones. `DESIGN-GAP` has two flavors; ask the right question for each:
+  - **Under-coverage** (design didn't specify a case the impl hit): ask which constraint, error path, concurrency edge, or data shape the design needs to add.
+  - **Over-reach** (design named a surface no requirement anchors, code legitimately omitted it): ask drop-or-anchor — drop the surface from `## Approach` / `## File Structure Plan`, **or** stop and add the missing requirement via `/ai-sdlc:spec-requirements` first. Default recommendation is drop unless a real consumer for the surface exists today.
 
 ### Optional — dispatch a subagent for codebase survey
 
@@ -119,6 +121,7 @@ Run mechanical checks first, then judgment checks. Repair locally and re-run on 
 3. Every draft ADR referenced in `## Decisions` has a corresponding draft path declared.
 4. `## File Structure Plan` contains concrete file paths (no `TBD`, no empty placeholders).
 5. Every component/file/module name mentioned in `## Approach` appears in `## File Structure Plan` (no orphan components).
+6. **Every public surface** named in `## Approach` or `## File Structure Plan` (exported types/interfaces, public methods, commands, routes, CLI flags, files-to-create) is **anchored by at least one requirement slug** in this change's deltas — or by an existing slug in a living spec touched by the deltas. Map each surface to its anchoring slug(s) explicitly during the check; a surface no slug motivates is design over-reach. Drop it from the draft, or stop and add the requirement via `/ai-sdlc:spec-requirements` before continuing.
 
 ### Judgment checks (apply after mechanical pass)
 
@@ -143,6 +146,7 @@ Walk each branch of the decision tree. Focus on attacks that the mechanical gate
 
 - **Hidden assumptions in `## Approach`** — control flow that "obviously works" but only under conditions the design doesn't state.
 - **Ownership drift in `## File Structure Plan`** — files placed in a capability the user wouldn't have chosen, or files that imply a refactor the proposal didn't authorize.
+- **Unanchored surface** — for each public type, method, command, route, or file in `## Approach` and `## File Structure Plan`, name the requirement slug that motivates it. Surface that traces only to "future capability" or "extensibility" — not a slug — is pre-spec scaffolding. Drop it from the draft, or stop and add a requirement via `/ai-sdlc:spec-requirements` first. (The mechanical check #6 does the same audit; this prompt forces the conversation when the gate flagged something or when a surface feels speculative.)
 - **Risks without mitigations** — every `## Risks` bullet should name a mitigation, an accepted budget, or a follow-up trigger; flag bullets that just describe pain.
 - **ADR qualification** — decisions in `## Approach` that meet all three ADR criteria (hard to reverse + surprising + real trade-off) but weren't drafted as an ADR. Conversely, draft ADRs that don't meet all three should fold back into prose.
 - **Tradeoff tensions** — pairs of design choices that pull against each other (latency vs durability, simplicity vs extensibility); force a resolution.

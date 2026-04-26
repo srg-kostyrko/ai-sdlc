@@ -89,10 +89,12 @@ Tag each finding with exactly one action type:
 
 | Tag | Meaning | Heuristic |
 |---|---|---|
-| `FIX-MISMATCH` | Code works but doesn't match spec — structural/naming/wiring difference | Return shape, public name, or wiring differs from delta or design |
+| `FIX-MISMATCH` | Code doesn't match a design surface that **a requirement anchors** — fix the code | Return shape, public name, or wiring differs from delta/design AND a req-slug motivates that surface |
 | `FIX-BUG` | Code produces wrong behavior — needs root-cause investigation | Null path, off-by-one, broken invariant, failing edge case |
-| `DESIGN-GAP` | Design doesn't cover a case the implementation hit | Concurrency edge, error path, data shape Design didn't specify |
+| `DESIGN-GAP` | Design and reality are out of sync — fix the design | Either: design doesn't cover a case the implementation hit (concurrency edge, error path, data shape design didn't specify); **or**: design names a surface no requirement anchors (pre-spec scaffolding) and code legitimately omitted it |
 | `SPEC-GAP` | A requirement is missing or ambiguous — needs spec clarification | Acceptance criterion silent on a real case the impl had to invent |
+
+**Disambiguating FIX-MISMATCH vs DESIGN-GAP for missing surface:** when code lacks a public surface that `design.md` declared, ask first: *which requirement slug anchors that surface?* If a slug in the deltas (or living spec) motivates it → `FIX-MISMATCH` (code must add it). If no slug motivates it → `DESIGN-GAP` (design over-reached; drop the surface or add the requirement first).
 
 If the same root cause produces multiple symptoms, record one finding citing the symptoms in its description.
 
