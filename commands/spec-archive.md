@@ -63,6 +63,8 @@ If `.sdlc/specs/<capability>/` does not exist, create it with:
 - An empty `CHANGELOG.md` containing only `# <capability> — Changelog\n`.
 - Empty `decisions/` directory.
 
+Then seed `## Purpose` in the new `spec.md`: synthesize one sentence describing what this capability is responsible for, drawn from the proposal's `## Why` and the `**Why:**` lines of the ADDED requirements in this delta. Replace the `<!-- One sentence ... -->` placeholder with the sentence; leave the trailing `<!-- Seeded by ... -->` comment in place. Only do this on lazy seed — never overwrite Purpose on subsequent archives.
+
 ### Apply Requirements deltas to `spec.md`
 - For each block under `## ADDED Requirements`: append the requirement (verbatim, header + body) to the `## Requirements` section in living `spec.md`. Maintain order: append at the end of `## Requirements`.
 - For each block under `## MODIFIED Requirements`: locate the existing requirement with the same slug in living `spec.md` and **replace its block in place** (from its `### Requirement:` heading down to the next `### Requirement:` heading or end of section). Use the new content verbatim.

@@ -6,8 +6,8 @@
 
 ## Purpose
 
-<!-- TODO: one sentence describing what the {{CAPABILITY}} capability is responsible for. -->
-<!-- Edit by hand; not managed by deltas. Filled in on first review after lazy seeding. -->
+<!-- One sentence describing what the {{CAPABILITY}} capability is responsible for. -->
+<!-- Seeded by /ai-sdlc:spec-archive on first creation; edit by hand to refine. Not managed by deltas thereafter. -->
 
 ## Requirements
 
