@@ -46,9 +46,8 @@ Read into main context:
 - Existing ADRs under `.sdlc/specs/<capability>/decisions/` and `.sdlc/decisions/` so the design doesn't contradict prior decisions
 - **Project-wide steering** under `.sdlc/steering/`: read `product.md` (project goals + value), `structure.md` (module layout + conventions), `tech.md` (stack + constraints). Skip files that don't exist or contain only template placeholder text — those are unpopulated.
 - **Brief-writing guideline:** read `${CLAUDE_PLUGIN_ROOT}/guidelines/durable-briefs.md` before drafting — its rules apply to `## Approach`, `## File Structure Plan`, and `## Risks`.
-- `.sdlc/changes/<slug>/findings.md` if present. Open `DESIGN-GAP` findings drive the constraints interview in Step 3.5 — turn each into a targeted question before asking the generic ones. `DESIGN-GAP` has two flavors; ask the right question for each:
-  - **Under-coverage** (design didn't specify a case the impl hit): ask which constraint, error path, concurrency edge, or data shape the design needs to add.
-  - **Over-reach** (design named a surface no requirement anchors, code legitimately omitted it): ask drop-or-anchor — drop the surface from `## Approach` / `## File Structure Plan`, **or** stop and add the missing requirement via `/ai-sdlc:spec-requirements` first. Default recommendation is drop unless a real consumer for the surface exists today.
+- `.sdlc/changes/<slug>/findings.md` if present. Open `DESIGN-GAP` findings drive the constraints interview in Step 3.5 — turn each into a targeted question before asking the generic ones. `DESIGN-GAP` covers under-coverage: design didn't specify a case the impl hit. Ask which constraint, error path, concurrency edge, or data shape the design needs to add.
+- Independently, scan `design.md` for **unanchored surfaces** — public types, methods, commands, routes, or modules whose declared behavior the implementation legitimately omitted because no requirement anchors them. These are not findings (review doesn't flag them), but they linger as design over-reach. For each, ask drop-or-anchor: drop the surface from `## Approach` / `## File Structure Plan`, **or** add the missing requirement via `/ai-sdlc:spec-requirements` first. Default recommendation is drop unless a real consumer for the surface exists today.
 
 ### Optional — dispatch a subagent for codebase survey
 
@@ -92,7 +91,7 @@ How the change is built. Components, control flow, data shapes. Reference requir
 **Goals** tie to `proposal.md ## What Changes`. **Non-Goals** explicitly exclude scope that could be misread (future work, integration points deferred, capabilities not touched).
 
 ### `## File Structure Plan`
-Concrete files to create or modify, grouped by component. Vague file plans produce vague tasks. Use file paths, not abstractions.
+Components or modules this change grows, grouped by area. Name the modules that gain or change behavior — concrete file paths are advisory and may shift during implementation. Vague module plans produce vague tasks; bare abstractions ("the auth layer") aren't enough — name the actual module/package.
 
 ### `## Risks`
 What could go wrong. One bullet each: migration concerns, perf budgets, security implications, observability gaps, dependency risks. Include mitigation or accepted budget.
@@ -119,16 +118,16 @@ Run mechanical checks first, then judgment checks. Repair locally and re-run on 
 1. `design.md` draft contains `## Approach`, `## Goals / Non-Goals`, `## File Structure Plan`, `## Risks`. None contains `<!-- TODO -->`.
 2. Every requirement slug mentioned in the draft resolves to an ADDED/MODIFIED slug in this change's deltas OR an existing slug in a living spec.
 3. Every draft ADR referenced in `## Decisions` has a corresponding draft path declared.
-4. `## File Structure Plan` contains concrete file paths (no `TBD`, no empty placeholders).
-5. Every component/file/module name mentioned in `## Approach` appears in `## File Structure Plan` (no orphan components).
-6. **Every public surface** named in `## Approach` or `## File Structure Plan` (exported types/interfaces, public methods, commands, routes, CLI flags, files-to-create) is **anchored by at least one requirement slug** in this change's deltas — or by an existing slug in a living spec touched by the deltas. Map each surface to its anchoring slug(s) explicitly during the check; a surface no slug motivates is design over-reach. Drop it from the draft, or stop and add the requirement via `/ai-sdlc:spec-requirements` before continuing.
+4. `## File Structure Plan` contains concrete component/module entries (no `TBD`, no empty placeholders).
+5. Every component or module name mentioned in `## Approach` appears in `## File Structure Plan` (no orphan components).
+6. **Every public surface** named in `## Approach` or `## File Structure Plan` (exported types/interfaces, public methods, commands, routes, CLI flags) is **anchored by at least one requirement slug** in this change's deltas — or by an existing slug in a living spec touched by the deltas. Map each surface to its anchoring slug(s) explicitly during the check; a surface no slug motivates is design over-reach. Drop it from the draft, or stop and add the requirement via `/ai-sdlc:spec-requirements` before continuing.
 
 ### Judgment checks (apply after mechanical pass)
 
 1. **Goals are specific** — each ties to a concrete item in `proposal.md ## What Changes`, not vague ambitions.
 2. **Non-Goals are specific** — each excludes a misreading the reader could plausibly fall into, not generic "out of scope."
 3. **Approach explains how, not what.** No restating of requirements in design.md.
-4. **File Structure Plan implies ownership consistent with the change's capabilities.** Files outside the touched capabilities should be flagged as cross-cutting concerns or removed.
+4. **File Structure Plan implies ownership consistent with the change's capabilities.** Modules outside the touched capabilities should be flagged as cross-cutting concerns or removed.
 5. **Risks are concrete with mitigations or accepted budgets**, not platitudes ("might be slow").
 6. **ADR qualification is honest.** If a draft ADR doesn't meet all three criteria (hard to reverse + surprising + real trade-off), demote it back to `## Approach` prose.
 
@@ -145,8 +144,8 @@ Run the `grill-me` skill against the in-memory design draft. This step **cannot*
 Walk each branch of the decision tree. Focus on attacks that the mechanical gate cannot make:
 
 - **Hidden assumptions in `## Approach`** — control flow that "obviously works" but only under conditions the design doesn't state.
-- **Ownership drift in `## File Structure Plan`** — files placed in a capability the user wouldn't have chosen, or files that imply a refactor the proposal didn't authorize.
-- **Unanchored surface** — for each public type, method, command, route, or file in `## Approach` and `## File Structure Plan`, name the requirement slug that motivates it. Surface that traces only to "future capability" or "extensibility" — not a slug — is pre-spec scaffolding. Drop it from the draft, or stop and add a requirement via `/ai-sdlc:spec-requirements` first. (The mechanical check #6 does the same audit; this prompt forces the conversation when the gate flagged something or when a surface feels speculative.)
+- **Ownership drift in `## File Structure Plan`** — modules placed in a capability the user wouldn't have chosen, or modules that imply a refactor the proposal didn't authorize.
+- **Unanchored surface** — for each public type, method, command, or route in `## Approach` and `## File Structure Plan`, name the requirement slug that motivates it. Surface that traces only to "future capability" or "extensibility" — not a slug — is pre-spec scaffolding. Drop it from the draft, or stop and add a requirement via `/ai-sdlc:spec-requirements` first. (The mechanical check #6 does the same audit; this prompt forces the conversation when the gate flagged something or when a surface feels speculative.)
 - **Risks without mitigations** — every `## Risks` bullet should name a mitigation, an accepted budget, or a follow-up trigger; flag bullets that just describe pain.
 - **ADR qualification** — decisions in `## Approach` that meet all three ADR criteria (hard to reverse + surprising + real trade-off) but weren't drafted as an ADR. Conversely, draft ADRs that don't meet all three should fold back into prose.
 - **Tradeoff tensions** — pairs of design choices that pull against each other (latency vs durability, simplicity vs extensibility); force a resolution.

@@ -17,7 +17,7 @@
 
 ## File Structure Plan
 
-<!-- TODO: files to create or modify, grouped by component. Concrete paths, not abstractions. -->
+<!-- TODO: components or modules this change grows, grouped by area. Name the modules; concrete file paths are advisory and may shift during implementation. -->
 
 ## Risks
 

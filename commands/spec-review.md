@@ -63,9 +63,9 @@ Read every changed implementation file in full (current state, not just the diff
 For each changed implementation file, assess against:
 
 1. **Correctness** — logical errors, invalid assumptions, broken failure paths, state bugs.
-2. **Scope discipline** — does the change stay within the deltas and `design.md ## File Structure Plan`'s scope, or touch unrelated code?
+2. **Scope discipline** — does the change stay within the modules named in `design.md ## File Structure Plan`, or touch unrelated code? Concrete file paths inside those modules are advisory; new files within a planned module are not a finding.
 3. **Regression risk** — could existing behavior break? Edge cases handled?
-4. **Design alignment** — file location, public interface, return shapes, error handling, naming match `design.md ## Approach` and `## File Structure Plan`.
+4. **Design alignment** — for each public surface a requirement anchors, do public interface, return shapes, error handling, and naming match `design.md ## Approach` and the deltas? File location and naming choices that no requirement anchors are not a finding — impl is free to choose.
 5. **Test adequacy** — tests present for changed behavior and the edge cases the deltas describe.
 
 **Grounding rule:** before recording any finding, verify the code at the file:line you're about to cite. If you cannot find the code there, drop the finding.
@@ -91,10 +91,10 @@ Tag each finding with exactly one action type:
 |---|---|---|
 | `FIX-MISMATCH` | Code doesn't match a design surface that **a requirement anchors** — fix the code | Return shape, public name, or wiring differs from delta/design AND a req-slug motivates that surface |
 | `FIX-BUG` | Code produces wrong behavior — needs root-cause investigation | Null path, off-by-one, broken invariant, failing edge case |
-| `DESIGN-GAP` | Design and reality are out of sync — fix the design | Either: design doesn't cover a case the implementation hit (concurrency edge, error path, data shape design didn't specify); **or**: design names a surface no requirement anchors (pre-spec scaffolding) and code legitimately omitted it |
+| `DESIGN-GAP` | Design didn't cover a case the implementation hit — fix the design | Concurrency edge, error path, or data shape design didn't specify, that the impl had to invent |
 | `SPEC-GAP` | A requirement is missing or ambiguous — needs spec clarification | Acceptance criterion silent on a real case the impl had to invent |
 
-**Disambiguating FIX-MISMATCH vs DESIGN-GAP for missing surface:** when code lacks a public surface that `design.md` declared, ask first: *which requirement slug anchors that surface?* If a slug in the deltas (or living spec) motivates it → `FIX-MISMATCH` (code must add it). If no slug motivates it → `DESIGN-GAP` (design over-reached; drop the surface or add the requirement first).
+**Disambiguating FIX-MISMATCH vs no-finding for missing surface:** when code lacks a public surface that `design.md` declared, ask first: *which requirement slug anchors that surface?* If a slug in the deltas (or living spec) motivates it → `FIX-MISMATCH` (code must add it). If no slug motivates it → **not a finding** — the design surface was unanchored over-reach and the absent code is correct. The unanchored surface stays in `design.md` until the next `/ai-sdlc:spec-design` run cleans it up; it does not block GO.
 
 If the same root cause produces multiple symptoms, record one finding citing the symptoms in its description.
 

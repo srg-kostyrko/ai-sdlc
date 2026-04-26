@@ -25,7 +25,7 @@ Refuse unless ALL hold. Print specific failures and stop on miss.
 3. None of those sections contains `<!-- TODO -->` markers.
 4. Every requirement slug mentioned in `design.md` resolves (against deltas or living specs).
 5. Every draft ADR referenced in `design.md` exists at its declared path.
-6. `## File Structure Plan` has concrete file paths (not placeholders).
+6. `## File Structure Plan` has concrete component/module entries (not placeholders).
 
 If a gate fails, print the file:line and stop. Suggest `/ai-sdlc:spec-design`.
 
