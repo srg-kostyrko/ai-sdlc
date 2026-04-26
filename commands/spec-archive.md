@@ -26,7 +26,7 @@ Refuse unless ALL hold. Print specific failures and stop on miss. There is **no 
 6. No `<!-- TODO -->` markers anywhere in `proposal.md`, `design.md`, `tasks.md`, `validation.md`, or any `delta.md`.
 7. `.sdlc/changes/<slug>/findings.md` exists with a `## Verdict` block.
 8. `## Verdict` shows `Result: GO`.
-9. The verdict's `Head ref:` value equals the current `git rev-parse HEAD`. (If commits or uncommitted changes have landed since the last review, re-run `/ai-sdlc:spec-review` to refresh the verdict.)
+9. The verdict's GO claim still applies to the current code. Compute the diff between the verdict's `Head ref:` and the current state — committed changes via `git diff --name-only <verdict-head>..HEAD`, and uncommitted changes via `git status --porcelain`. If every changed path is under `.sdlc/` or `.claude/` (process artifacts, the same exclusion `/ai-sdlc:spec-review` Step 3 applies), the implementation-code claim is unaffected — proceed. If any implementation-code path appears, refuse and ask for `/ai-sdlc:spec-review` to refresh the verdict.
 
 ## Step 3 — Slug-presence sanity check (per delta)
 
