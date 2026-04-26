@@ -1,11 +1,11 @@
 ---
-description: Investigate a loose idea before committing to a change. Runs codebase + (optional) web research via subagents, drafts approaches with tradeoffs, runs a viability check and grill-me, writes `.sdlc/research/<slug>.md`. Concludes with Proceed / Drop / Extend recommendation; never auto-creates a change folder.
+description: Investigate a loose idea before committing to a change. Runs codebase + (optional) web research via subagents, writes `.sdlc/research/<slug>.md` early as a stub, then refines on-disk through approach drafting, viability check, and grill-me. Concludes with Proceed / Drop / Extend recommendation; never auto-creates a change folder.
 argument-hint: ["<topic seed>"]
 ---
 
 You are running pre-change research for an idea the user wants to investigate before committing to a proposal.
 
-The flow is **frame → scan → explore (subagents) → draft approaches → viability check → grill-me → finalize**. The artifact is a single file `.sdlc/research/<slug>.md`. A change folder is **not** created here — the research either recommends one (`/ai-sdlc:spec-propose` next) or recommends against.
+The flow is **frame → derive slug → write stub → scan → explore (subagents) → draft approaches → viability check → grill-me → classify → report**. The artifact is a single file `.sdlc/research/<slug>.md` written early in the flow, with sections filled in as content emerges. A change folder is **not** created here — the research either recommends one (`/ai-sdlc:spec-propose` next) or recommends against.
 
 ## Step 1 — Parse arguments
 
@@ -27,6 +27,21 @@ If the conversation already names a concrete question (not just a vague topic), 
 Otherwise ask **Q1**: "What do you want to know? One question, in your own words. (e.g. 'should we replace X with Y?', 'what would it take to support Z?', 'is library W viable for our stack?')"
 
 If a seed was provided, prefix with `You said: "<seed>". Sharpen into a question:`.
+
+## Step 3.5 — Derive slug and write stub
+
+Once the research question is confirmed, derive a slug now (the same rules described in the previous Step 10):
+- 2–4 word noun phrase grounded in the question (not the recommendation — the slug should still make sense if the recommendation ends up Drop).
+- Lowercase + dashes only. Must match `^[a-z0-9][a-z0-9-]*$`.
+
+Collision check:
+- `.sdlc/research/<candidate>.md` must not already exist. If it does, ask the user whether to overwrite or pick a different slug.
+
+Read `${CLAUDE_PLUGIN_ROOT}/templates/research.md`, substitute `{{RESEARCH_SLUG}}`, and write the stub to `.sdlc/research/<slug>.md` now:
+- `## Question` — the confirmed research question.
+- All other sections — leave the template's placeholder content; they're filled in as later steps complete.
+
+Subsequent steps update sections of this on-disk file as content emerges.
 
 ## Step 4 — Lightweight scan
 
@@ -50,9 +65,9 @@ Dispatch both in parallel when both apply. Each must return a summary, **not** r
 
 If neither subagent is needed (small question fully answerable from loaded context), say so and proceed.
 
-## Step 6 — Draft approaches in memory
+## Step 6 — Draft approaches and update the file
 
-Synthesize 2–3 candidate approaches. Hold all drafting in memory; do not write to disk until Step 10.
+Synthesize 2–3 candidate approaches.
 
 For each approach:
 - **Name**: noun phrase, 2–4 words.
@@ -62,6 +77,10 @@ For each approach:
 
 If the question genuinely admits only one viable approach (rare), draft the single approach and note explicitly *why* alternatives are ruled out.
 
+Update the on-disk file:
+- `## Findings` — bulleted summary from Step 5 subagent outputs, each with file:line or URL.
+- `## Approaches Considered` — every approach drafted, including ones the user later rejects (record kept for future readers).
+
 Present the approaches to the user. Recommend one and explain why in 1–2 sentences.
 
 ## Step 7 — Viability check (mandatory once an approach is picked)
@@ -70,11 +89,11 @@ After the user selects an approach (or accepts the recommendation), dispatch a s
 
 Prompt template: "Verify viability of [approach name] for this project. Check: (1) are the named technologies/libraries actively maintained (last release within 12 months)? (2) license compatibility with the existing stack? (3) do the components actually compose for [the question's use case]? (4) any known showstoppers — critical bugs, security CVEs, platform limits? Return only issues found, or 'No issues found'."
 
-If issues surface, present them and revisit Step 6. If clean, proceed.
+If issues surface, present them and revisit Step 6 (updating the on-disk approaches as needed). If clean, update `## Viability Notes` on disk with the subagent output verbatim or condensed, and proceed.
 
 ## Step 8 — Grill-me (mandatory)
 
-Run the `grill-me` skill against the in-memory recommendation. Walk each branch:
+Run the `grill-me` skill against the on-disk recommendation. Walk each branch:
 
 - **Premise** — does the research question itself still hold given findings, or did exploration reveal the real question is different?
 - **Approach pressure** — what would force you off the recommended approach? At what scale, cost, or constraint does it break?
@@ -83,11 +102,11 @@ Run the `grill-me` skill against the in-memory recommendation. Walk each branch:
 - **No-build option** — has "do nothing" been honestly compared? What's the cost of not doing this?
 - **Wrong-bin risk** — is this actually a Drop or Extend (existing change) wearing Proceed's clothes?
 
-Question count is open — keep going within a branch until it resolves. Apply each agreed change to the in-memory draft.
+Question count is open — keep going within a branch until it resolves. Apply each agreed change as an on-disk edit.
 
 Before concluding, ask: "Anything else to challenge before we record this?"
 
-## Step 9 — Classify the recommendation
+## Step 9 — Classify the recommendation and finalize the file
 
 Land on exactly one:
 
@@ -95,26 +114,11 @@ Land on exactly one:
 - **Extend existing change** — findings belong to an active change, not a new one. Name the slug and what to add. The user runs `/ai-sdlc:spec-requirements <slug>` next.
 - **Drop** — recommendation is don't build this. State the disqualifier plainly. The artifact persists as a record of what was evaluated and why it was rejected.
 
-## Step 10 — Derive slug and write
-
-Derive a research slug from the confirmed question:
-- 2–4 word noun phrase grounded in the question (not the recommendation — slug should still make sense if recommendation is Drop).
-- Lowercase + dashes only. Must match `^[a-z0-9][a-z0-9-]*$`.
-
-Collision check:
-- `.sdlc/research/<candidate>.md` must not already exist. If it does, ask the user whether to overwrite or pick a different slug.
-
-Read `${CLAUDE_PLUGIN_ROOT}/templates/research.md`. Substitute `{{RESEARCH_SLUG}}`. Fill all sections from the in-memory draft:
-- `## Question` — the confirmed research question.
-- `## Findings` — bulleted summary from subagent outputs, each with file:line or URL.
-- `## Approaches Considered` — every approach drafted in Step 6, including ones the user rejected (record kept for future readers).
-- `## Viability Notes` — Step 7 output verbatim or condensed.
-- `## Recommendation` — Proceed / Drop / Extend, with the paragraph from Step 9.
+Update the on-disk file's remaining sections:
+- `## Recommendation` — Proceed / Drop / Extend, with the paragraph above.
 - `## Next Step` — the concrete next command, or "no further action" for Drop.
 
-Write to `.sdlc/research/<slug>.md`.
-
-## Step 11 — Report
+## Step 10 — Report
 
 Print:
 
@@ -135,7 +139,7 @@ Next: <the next-step line from the artifact>
 ## Error scenarios
 
 - **Missing `.sdlc/`.** Stop, suggest `/ai-sdlc:sdlc-init`.
-- **Slug collision with existing research.** Ask the user: overwrite, pick a new slug, or extend the existing file in a fresh session.
+- **Slug collision with existing research.** Ask the user at Step 3.5: overwrite, pick a new slug, or extend the existing file in a fresh session.
 - **Subagent returns nothing useful.** Surface to the user — do not invent findings. Offer to retry with a sharper subagent prompt or proceed with what's available.
-- **Grill-me reaches no shared understanding.** Stop and write nothing; report the open question.
-- **User cannot pick an approach after viability check.** Stop and write nothing; suggest re-running with a narrower question.
+- **Grill-me reaches no shared understanding.** Stop with the on-disk stub left in place (sections incomplete). Report the open question; the user can resume or delete the file.
+- **User cannot pick an approach after viability check.** Stop with the on-disk file partially filled. Suggest re-running with a narrower question; the user can delete the stub or keep it as a record of what was attempted.

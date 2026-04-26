@@ -1,11 +1,11 @@
 ---
-description: Refine proposal.md and capability deltas for an active change. Interviews the user, drafts requirements in memory, runs self-check and grill-me, writes only when clean.
+description: Refine proposal.md and capability deltas for an active change. Interviews the user, writes the initial draft to disk, then refines on-disk through self-check and grill-me.
 argument-hint: [<slug>]
 ---
 
 You are refining the requirements (proposal narrative + per-capability deltas) for an active change.
 
-The flow is **interview → draft → self-check → grill-me → glossary sweep → finalize**. Structure (req- slugs, Scenario blocks, ADDED/MODIFIED/REMOVED partitioning) is your job, not the user's. Elicit understanding in plain language first, then formalize.
+The flow is **interview → draft and write to disk → self-check → grill-me → glossary sweep → final re-check → report**. The initial draft writes to disk early so it's inspectable; later steps refine through on-disk edits. Structure (req- slugs, Scenario blocks, ADDED/MODIFIED/REMOVED partitioning) is your job, not the user's. Elicit understanding in plain language first, then formalize.
 
 ## Step 1 — Resolve the change
 
@@ -40,15 +40,15 @@ Cover, in roughly this order:
 
 Phrase questions in the user's domain language. Provide a recommended answer when you have grounded grounds for one (codebase evidence, prior `proposal.md` content, steering files). Wait for each answer before moving on. Do not ask the user to name `req-` slugs, capability names, or scenario shapes — those come from you in Step 4.
 
-## Step 4 — Draft in memory
+## Step 4 — Draft and write to disk
 
-Hold all edits in memory only. Do not write to disk until Step 9.
+Author the initial draft, then write it to disk immediately. Subsequent steps (self-check, grill-me, glossary sweep) refine the files on disk through edits. The file stays inspectable at every checkpoint.
 
 ### proposal.md
 - Fill `## Why`, `## What Changes`, `## Scope` from the interview answers, lightly edited for prose flow. Replace every `<!-- TODO -->` marker. Do not invent motivation the user did not give.
 
 ### Per-capability deltas
-- Infer the most likely **bounded-context capability** from the interview content (e.g. `auth`, `billing`, `notifications`, `search`). If the change spans more than one capability, hold one `delta.md` per capability in memory, instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md` with `{{CAPABILITY}}` substituted.
+- Infer the most likely **bounded-context capability** from the interview content (e.g. `auth`, `billing`, `notifications`, `search`). If the change spans more than one capability, create one `delta.md` per capability, instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/delta.md` with `{{CAPABILITY}}` substituted.
 - For each behavior the user described, draft a requirement:
   - Title (short noun phrase) and `req-<slug>` (lowercase-dashed).
   - `**Why:**` — one line tying the requirement back to `proposal.md ## Why` or `## What Changes`.
@@ -60,9 +60,15 @@ Hold all edits in memory only. Do not write to disk until Step 9.
   - `## REMOVED Requirements` — slug exists in living spec and this change drops it.
 - For domain nouns surfacing in scenarios, draft `## ADDED Terms` entries (`### Term: Name {#term-slug}` + `**Definition:**` + `**Notes:**`). Pre-existing terms in living `GLOSSARY.md` need no entry — reference them by Title Case name.
 
+### Write the initial draft
+
+Once `proposal.md` and the per-capability deltas are drafted, write them to disk now:
+- `.sdlc/changes/<slug>/proposal.md`
+- Each `.sdlc/changes/<slug>/specs/<capability>/delta.md`. `mkdir -p` each `specs/<capability>/` parent before writing.
+
 ### Confirm capability inference
 
-After drafting, show the user a one-line summary per capability:
+After writing, show the user a one-line summary per capability:
 
 ```
 Capabilities inferred from your answers:
@@ -71,7 +77,7 @@ Capabilities inferred from your answers:
 Confirm, or correct the capability split.
 ```
 
-Apply corrections to the in-memory draft before proceeding.
+Apply corrections through edits to the on-disk files before proceeding.
 
 ## Step 5 — Self-check (silent, autonomous)
 
@@ -99,13 +105,13 @@ Run mechanical checks first, then judgment checks. Auto-repair within bounds; su
 
 ### Repair loop
 
-- If a check fails and the issue is local (typo, missing field, dangling reference, slug normalization, scope-mapping bullet missing): fix in the draft and re-run.
+- If a check fails and the issue is local (typo, missing field, dangling reference, slug normalization, scope-mapping bullet missing): edit the file on disk and re-run.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue to the user — do not invent a fix.
 - If the issue is a real ambiguity (contradictory user input, capability name unclear), stop on first occurrence and ask the user.
 
 ## Step 6 — Grill-me (mandatory)
 
-Run the `grill-me` skill against the in-memory draft. This step **cannot** be skipped, regardless of change size.
+Run the `grill-me` skill against the on-disk draft. This step **cannot** be skipped, regardless of change size.
 
 Walk each branch of the decision tree:
 - **Ambiguity** — scenarios where two reasonable readings give different outcomes.
@@ -116,31 +122,26 @@ Walk each branch of the decision tree:
 - **Tradeoff pressure** — where two requirements pull against each other, force a resolution.
 - **Design leak** — items that name an internal implementation choice (library, algorithm, internal schema field, internal method name) where an observable property would describe the same requirement. Restate as observable, or defer to `design.md`. Skip this branch for items that name a contract this change exposes publicly.
 
-Ask one question at a time, with your recommended answer grounded in codebase evidence or `proposal.md`. Label each question by its branch (e.g. `Design leak — Q1`, `Design leak — Q2`, then `Invariant gaps — Q1`). Question count is open — keep going within a branch until it resolves, then move to the next. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+Ask one question at a time, with your recommended answer grounded in codebase evidence or `proposal.md`. Label each question by its branch (e.g. `Design leak — Q1`, `Design leak — Q2`, then `Invariant gaps — Q1`). Question count is open — keep going within a branch until it resolves, then move to the next. Apply each agreed change as an on-disk edit as you go. Before concluding ask: "Anything else to challenge before we finalize?"
 
 If grill-me produced changes, re-run Step 5's mechanical checks once more (no judgment-loop re-run — grill-me is the judgment loop).
 
 ## Step 7 — Glossary sweep
 
-Invoke `spec-glossary-suggest` against each in-memory delta draft. For each surfaced candidate:
+Invoke `spec-glossary-suggest` against each on-disk delta draft. For each surfaced candidate:
 - **Capitalized phrase, likely term** — add an entry to `## ADDED Terms` (the prose reference is already correct).
 - **Capitalized phrase, low-confidence** — leave alone unless the user flags it.
 - **Unresolved opt-in `[[slug]]`** (rare) — typo or genuinely missing entry. Fix the markup or add to `## ADDED Terms`.
 
-Apply changes to the in-memory draft. Skip if zero candidates surface.
+Apply changes as on-disk edits. Skip if zero candidates surface.
 
 ## Step 8 — Final mechanical re-check
 
-After grill-me and glossary sweep, run Step 5's mechanical checks one final time. If any fail, surface to the user — do not write.
+After grill-me and glossary sweep, run Step 5's mechanical checks one final time against the on-disk files. If any fail, surface to the user.
 
-## Step 9 — Finalize
+## Step 9 — Report
 
-Write the in-memory draft to disk:
-
-- `.sdlc/changes/<slug>/proposal.md`
-- Each `.sdlc/changes/<slug>/specs/<capability>/delta.md` (including any newly-introduced capability deltas). `mkdir -p` each `specs/<capability>/` parent before writing — the change folder may not yet contain a `specs/` subtree.
-
-Report:
+By this point all checks have passed and the files are on disk. Report:
 
 ```
 proposal.md:                   clean
@@ -150,13 +151,13 @@ Capabilities touched:          auth, notifications
 Ready for /ai-sdlc:spec-design <slug>.
 ```
 
-If Step 8 did not pass, write **nothing** and report:
+If Step 8 did not pass after the bounded repair passes, the draft remains on disk in its in-progress state. Report:
 
 ```
 Refinement halted with unresolved issues:
   - <issue 1, with file:line>
   - <issue 2, with file:line>
-Resolve and re-run /ai-sdlc:spec-requirements <slug>.
+The draft is on disk; edit directly or re-run /ai-sdlc:spec-requirements <slug>.
 ```
 
 ## Constraints
@@ -173,5 +174,5 @@ Resolve and re-run /ai-sdlc:spec-requirements <slug>.
 - **Multiple active changes (ambiguous).** `$ARGUMENTS` empty and >1 active change → list active slugs and ask.
 - **Slug clash.** A drafted ADDED slug collides with an existing slug (living spec OR another delta in this change) → pick a different slug; if the user has a preferred name, ask.
 - **MODIFIED/REMOVED of a non-existent slug.** Living spec doesn't have the targeted slug → reclassify as ADDED, or drop.
-- **Capability inference rejected.** User corrects the capability split → re-bucket in-memory deltas and re-run Step 5.
-- **Grill-me reaches no shared understanding.** A challenge surfaces a contradiction the user cannot resolve → stop and write nothing; report the open question.
+- **Capability inference rejected.** User corrects the capability split → re-bucket the on-disk deltas (move requirements between files; delete and recreate `specs/<capability>/` folders as needed) and re-run Step 5.
+- **Grill-me reaches no shared understanding.** A challenge surfaces a contradiction the user cannot resolve → stop with the on-disk draft left in its current state; report the open question.

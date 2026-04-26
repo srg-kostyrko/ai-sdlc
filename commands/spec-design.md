@@ -1,11 +1,11 @@
 ---
-description: Refine design.md for an active change. Surfaces missing constraints, drafts in memory, runs self-check and grill-me, writes only when clean. Optionally dispatches a subagent to survey existing code.
+description: Refine design.md for an active change. Surfaces missing constraints, writes the initial draft to disk, then refines on-disk through self-check and grill-me. Optionally dispatches a subagent to survey existing code.
 argument-hint: [<slug>]
 ---
 
 You are refining the design for an active change.
 
-The flow is **resolve → gate → read context → constraints interview (skip-when-covered) → draft → self-check → grill-me → finalize**. Structure (section shape, ADR qualification, file-plan format) is your job. Elicit constraints in plain language when they're missing, then formalize.
+The flow is **resolve → gate → read context → constraints interview (skip-when-covered) → draft and write to disk → self-check → grill-me → report**. The initial draft writes to disk early so it's inspectable; later steps refine through on-disk edits. Structure (section shape, ADR qualification, file-plan format) is your job. Elicit constraints in plain language when they're missing, then formalize.
 
 ## Step 1 — Resolve the change
 
@@ -73,9 +73,9 @@ Candidate questions, asked one at a time, with your recommended answer based on 
 
 Stop as soon as remaining questions would be answered by content already in scope. If proposal/deltas/steering cover all five categories, skip the step entirely.
 
-## Step 4 — Draft design in memory
+## Step 4 — Draft and write design to disk
 
-Iterate with the user. Author the design as an **in-memory draft** based on:
+Iterate with the user. Author the design based on:
 
 - `proposal.md` (especially `## What Changes`)
 - The delta requirement slugs (the WHAT)
@@ -102,12 +102,18 @@ Create an ADR **only** if the decision meets all three: hard to reverse, surpris
 
 If a decision qualifies:
 1. Determine scope: per-capability (one capability) → draft path under `.sdlc/changes/<slug>/decisions/draft-<name>.md`, header `Affects: specs/<capability> — req-...`. System-wide (≥2 capabilities or no specific capability) → same draft path, header `Affects: system-wide`.
-2. Hold the draft ADR in memory (instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/adr.md` with `{{NUMBER}}` = `DRAFT` and `{{TITLE}}` filled). Fill `## Context`, `## Decision`, `## Consequences`. Optionally `## Alternatives Considered`.
+2. Author the draft ADR (instantiated from `${CLAUDE_PLUGIN_ROOT}/templates/adr.md` with `{{NUMBER}}` = `DRAFT` and `{{TITLE}}` filled). Fill `## Context`, `## Decision`, `## Consequences`. Optionally `## Alternatives Considered`.
 3. Reference from `design.md`'s `## Decisions`: `- draft: decisions/draft-<name>.md — <one-line summary>`.
 
 Optional sections (add only when relevant; not gate-required): Data Models, Testing Strategy, Components and Interfaces, Migration Strategy.
 
-Do NOT write to disk yet.
+### Write the initial draft
+
+Once the design is drafted, write to disk now:
+- `.sdlc/changes/<slug>/design.md`
+- Any draft ADRs at `.sdlc/changes/<slug>/decisions/draft-*.md` (create the directory if needed).
+
+Subsequent steps (review gate, grill-me, inline gap patching) refine the files through on-disk edits.
 
 ## Step 5 — Review gate
 
@@ -133,13 +139,13 @@ Run mechanical checks first, then judgment checks. Repair locally and re-run on 
 
 ### Repair loop
 
-- If a check fails and the issue is local to the draft, fix it and re-run the gate.
+- If a check fails and the issue is local, edit the file on disk and re-run the gate.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue.
 - If the gate exposes a **small spec gap** (a couple of delta edits — ADDED, MODIFIED, or REMOVED), patch the deltas inline (Step 6) and re-run the gate. If the gap is large or sweeping, stop and ask the user to revise via `/ai-sdlc:spec-requirements <slug>` — that's a scope shift, not a patch.
 
 ## Step 5.5 — Grill-me (mandatory)
 
-Run the `grill-me` skill against the in-memory design draft. This step **cannot** be skipped, regardless of change size.
+Run the `grill-me` skill against the on-disk design draft. This step **cannot** be skipped, regardless of change size.
 
 Walk each branch of the decision tree. Focus on attacks that the mechanical gate cannot make:
 
@@ -151,7 +157,7 @@ Walk each branch of the decision tree. Focus on attacks that the mechanical gate
 - **Tradeoff tensions** — pairs of design choices that pull against each other (latency vs durability, simplicity vs extensibility); force a resolution.
 - **Goals/Non-Goals overlap** — anything that reads as both in and out of scope.
 
-Ask one question at a time, with your recommended answer grounded in codebase evidence, deltas, or steering. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+Ask one question at a time, with your recommended answer grounded in codebase evidence, deltas, or steering. Apply each agreed change as an on-disk edit as you go. Before concluding ask: "Anything else to challenge before we finalize?"
 
 If grill-me produced changes, re-run Step 5's mechanical checks once more.
 
@@ -166,24 +172,18 @@ Scope of inline patching:
 
 Protocol per gap:
 1. Name the gap explicitly ("the design declares `forceLogout()` but no slug motivates it" / "the design needs `req-totp-enrollment` to also cover the SMS fallback case").
-2. Draft the edit in memory using the same shape `/ai-sdlc:spec-requirements` produces:
+2. Show the proposed edit using the same shape `/ai-sdlc:spec-requirements` produces:
    - For ADDED/MODIFIED: `### Requirement: <title> {#req-<slug>}` with `**Why:**` line, plus at least one `#### Scenario:` (`WHEN ... / THEN ...`) or `#### Criteria` bullet (EARS form). MODIFIED targets an existing slug (in living spec or earlier in this delta); the new block replaces the prior one wholesale.
    - For REMOVED: just the slug under `## REMOVED Requirements` with a one-line `**Why:**` explaining why design no longer needs it.
-3. Show the draft and ask the user to confirm, edit, or reject. Also surface obvious downstream effects (other requirements that cite the slug, scenarios that use a removed term).
-4. On confirmation: write the edit into the delta's matching block (`## ADDED Requirements`, `## MODIFIED Requirements`, `## REMOVED Requirements`, or the parallel Terms blocks). The capability is the one whose delta the design is anchored to; if the change has multiple deltas and the user is unsure, ask which capability owns it.
+3. Ask the user to confirm, edit, or reject. Also surface obvious downstream effects (other requirements that cite the slug, scenarios that use a removed term).
+4. On confirmation: edit the delta's matching block on disk (`## ADDED Requirements`, `## MODIFIED Requirements`, `## REMOVED Requirements`, or the parallel Terms blocks). The capability is the one whose delta the design is anchored to; if the change has multiple deltas and the user is unsure, ask which capability owns it.
 5. Re-run Step 5's mechanical checks before continuing.
 
 If at any point the user declines all inline patches and the gate still fails, fall back to the bounce: stop and suggest `/ai-sdlc:spec-requirements <slug>`.
 
-## Step 7 — Finalize
+## Step 7 — Report
 
-Once the review gate passes, write the in-memory draft to disk:
-
-- `.sdlc/changes/<slug>/design.md`
-- Any draft ADRs in `.sdlc/changes/<slug>/decisions/draft-*.md` (create the directory if needed).
-- Any deltas patched inline in Step 6 — overwrite the relevant `.sdlc/changes/<slug>/specs/<capability>/delta.md` with the in-memory version.
-
-Report:
+By this point the review gate passes and all files are on disk. Report:
 
 ```
 design.md:                clean
@@ -195,13 +195,13 @@ Ready for /ai-sdlc:spec-tasks <slug>.
 
 Omit the `Deltas patched inline:` line when no inline patches occurred.
 
-If the review gate did not pass after 2 repair passes, write **nothing** and report:
+If the review gate did not pass after 2 repair passes, the draft remains on disk in its in-progress state. Report:
 
 ```
 Design refinement halted with unresolved issues:
   - <issue 1, with file:line or section>
   - <issue 2>
-Resolve and re-run /ai-sdlc:spec-design <slug> (or /ai-sdlc:spec-requirements <slug> for larger spec gaps).
+The draft is on disk; edit directly or re-run /ai-sdlc:spec-design <slug> (or /ai-sdlc:spec-requirements <slug> for larger spec gaps).
 ```
 
 ## Constraints

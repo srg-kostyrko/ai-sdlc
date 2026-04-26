@@ -1,5 +1,5 @@
 ---
-description: Generate or refresh validation.md from the change's deltas. Drafts in memory, runs a review gate, writes only when clean. Preserves existing evidence and approvals.
+description: Generate or refresh validation.md from the change's deltas. Builds the merged skeleton, writes it to disk, then runs a review gate on the on-disk file. Preserves existing evidence and approvals.
 argument-hint: [<slug>]
 ---
 
@@ -33,11 +33,11 @@ Read into main context:
 - All deltas under `.sdlc/changes/<slug>/specs/` (collect every ADDED/MODIFIED scenario, every criterion, every REMOVED requirement slug)
 - Existing `.sdlc/changes/<slug>/validation.md` if present — used to preserve filled evidence
 
-## Step 4 — Build the skeleton in memory
+## Step 4 — Build the skeleton
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/validation.md` for the canonical structure.
 
-Generate the new skeleton, in memory, with one section per capability and subsections per requirement:
+Generate the new skeleton with one section per capability and subsections per requirement:
 
 For every **ADDED** requirement:
 - Subsection: `### <req-slug> (ADDED)`
@@ -52,9 +52,9 @@ For every **REMOVED** requirement:
 - Subsection: `### <req-slug> (REMOVED)`
 - One negative-evidence row: `- [ ] Smoke: <prior behavior> must NO LONGER hold` with `_Evidence:_` empty.
 
-## Step 5 — Merge with existing validation.md
+## Step 5 — Merge with existing validation.md and write to disk
 
-If `validation.md` exists, merge into the new skeleton (in memory). Do not overwrite.
+If `validation.md` exists, merge into the new skeleton before writing.
 
 Key each row by `(req-slug, ADDED|MODIFIED|REMOVED, scenario-or-criterion-text)`.
 
@@ -62,7 +62,9 @@ Three cases:
 
 - **Match found, existing row has `[x]` or non-empty `_Evidence:_`** → preserve the existing row verbatim (including `_Approved:_` if present). New rows generated for the same key are discarded.
 - **No match in existing file** → keep the new empty row.
-- **Existing row has no match in new skeleton** → the underlying delta entry was removed or its text changed. **Hold for review**; do not silently drop.
+- **Existing row has no match in new skeleton** → the underlying delta entry was removed or its text changed. **Hold for review**; do not silently drop. Mark the row in the merged draft so it surfaces in Step 6.
+
+Write the merged result to `.sdlc/changes/<slug>/validation.md` now. The review gate runs on the on-disk file.
 
 ## Step 6 — Review gate
 
@@ -85,9 +87,9 @@ Run mechanical checks. (Judgment checks are minimal here since the skeleton is m
 
 For each stale row, ask the user one question and act on the answer. There is no automatic repair loop here — stale rows are user choices, not draft defects.
 
-## Step 7 — Finalize
+## Step 7 — Report
 
-Once the review gate passes (and stale rows are resolved), write the merged draft to `.sdlc/changes/<slug>/validation.md`.
+By this point the review gate passes (stale rows resolved) and the merged draft is on disk. If user-chosen edits to stale rows changed the file, apply those edits on disk first.
 
 Report:
 
@@ -107,11 +109,11 @@ Next:
   - All rows green: run /ai-sdlc:spec-review <slug> to audit before /ai-sdlc:spec-archive <slug>.
 ```
 
-If stale rows remain unresolved (user deferred decisions), write **nothing** and report:
+If stale rows remain unresolved (user deferred decisions), the merged draft is on disk with stale rows still flagged. Report:
 
 ```
 Validation refresh halted.
-Unresolved stale rows: <N>. Decide drop/restore/keep for each and re-run.
+Unresolved stale rows: <N>. The draft is on disk with stale rows flagged inline; decide drop/restore/keep and re-run.
 ```
 
 ## Constraints

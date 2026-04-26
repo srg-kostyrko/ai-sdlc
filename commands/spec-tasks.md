@@ -1,11 +1,11 @@
 ---
-description: Refine tasks.md for an active change. Drafts in memory, runs self-check and grill-me, writes only when clean. Vertical slices only.
+description: Refine tasks.md for an active change. Writes the initial draft to disk, then refines on-disk through self-check and grill-me. Vertical slices only.
 argument-hint: [<slug>]
 ---
 
 You are refining the task decomposition for an active change.
 
-The flow is **resolve → gate → read context → draft → self-check → grill-me → finalize**. By tasks time the input (proposal, deltas, design) is firm — there is no pre-draft interview. Grill-me is the user's checkpoint before write.
+The flow is **resolve → gate → read context → draft and write to disk → self-check → grill-me → report**. The initial decomposition writes to disk early so it's inspectable; later steps refine through on-disk edits. By tasks time the input (proposal, deltas, design) is firm — there is no pre-draft interview. Grill-me is the user's checkpoint before the gate passes.
 
 ## Step 1 — Resolve the change
 
@@ -37,9 +37,9 @@ Read into main context:
 - All deltas under `.sdlc/changes/<slug>/specs/` — collect every ADDED/MODIFIED/REMOVED requirement slug
 - Existing `.sdlc/changes/<slug>/tasks.md` — used as merge base if present
 
-## Step 4 — Draft tasks in memory
+## Step 4 — Draft tasks and write to disk
 
-Decompose into vertical slices. Hold the draft **in memory** — do not write yet.
+Decompose into vertical slices.
 
 The hard discipline: **every task must satisfy at least one requirement slug**. No infrastructure, scaffolding, or setup-only tasks. Setup work folds into the first slice that needs it; the slice grows, and that's correct.
 
@@ -56,7 +56,9 @@ Decomposition rubric:
    - `_Depends:_` task IDs this task genuinely depends on (within or across groups); `—` if none. Independence is conveyed by `—`.
 6. Each task should be roughly day-sized. If smaller, consider merging; if larger, split into smaller end-to-end slices (not into a slice + a setup task).
 
-Iterate with the user on the rubric output before finalizing.
+Once the initial decomposition is drafted, write `.sdlc/changes/<slug>/tasks.md` to disk now. Subsequent steps (review gate, grill-me) refine it through on-disk edits.
+
+Iterate with the user on the on-disk draft.
 
 ## Step 5 — Review gate
 
@@ -84,13 +86,13 @@ Run mechanical checks first, then judgment checks.
 
 ### Repair loop
 
-- If a check fails and the issue is local to the draft, fix it and re-run the gate.
+- If a check fails and the issue is local, edit the file on disk and re-run the gate.
 - **Bounded to 2 repair passes.** After 2, stop and report the unresolved issue.
 - If the gate exposes a real **design gap** (e.g. a requirement that no slice can cleanly own), stop and ask the user to revise via `/ai-sdlc:spec-design` rather than fabricating a slice.
 
 ## Step 5.5 — Grill-me (mandatory)
 
-Run the `grill-me` skill against the in-memory tasks draft. This step **cannot** be skipped, regardless of change size.
+Run the `grill-me` skill against the on-disk tasks draft. This step **cannot** be skipped, regardless of change size.
 
 Walk each branch of the decision tree. Focus on attacks the mechanical gate cannot make:
 
@@ -101,15 +103,13 @@ Walk each branch of the decision tree. Focus on attacks the mechanical gate cann
 - **Group coherence** — tasks bundled in one group that don't share capability/area/theme, or related tasks split across groups. Phase-style names ("Phase 1", "Backend setup") that describe ordering rather than the area of work.
 - **Sequencing rationale** — task order that's arbitrary rather than driven by data flow or risk reduction. Spurious `_Depends:_` chains that pretend ordering exists where it doesn't.
 
-Ask one question at a time, with your recommended answer grounded in design content, deltas, or codebase evidence. Apply each agreed change to the in-memory draft as you go. Before concluding ask: "Anything else to challenge before we finalize?"
+Ask one question at a time, with your recommended answer grounded in design content, deltas, or codebase evidence. Apply each agreed change as an on-disk edit as you go. Before concluding ask: "Anything else to challenge before we finalize?"
 
 If grill-me produced changes, re-run Step 5's mechanical checks once more.
 
-## Step 6 — Finalize
+## Step 6 — Report
 
-Once the review gate passes, write the in-memory draft to `.sdlc/changes/<slug>/tasks.md`.
-
-Report:
+By this point the review gate passes and `.sdlc/changes/<slug>/tasks.md` is on disk. Report:
 
 ```
 tasks.md:                    clean (<N> tasks across <M> groups)
@@ -118,13 +118,13 @@ Requirements covered:        <N>/<N> ADDED/MODIFIED  (no orphans)
 Ready for /ai-sdlc:spec-validate <slug>.
 ```
 
-If the review gate did not pass after 2 repair passes, write **nothing** and report:
+If the review gate did not pass after 2 repair passes, the draft remains on disk in its in-progress state. Report:
 
 ```
 Task refinement halted with unresolved issues:
   - <issue 1>
   - <issue 2>
-Resolve and re-run /ai-sdlc:spec-tasks <slug> (or /ai-sdlc:spec-design <slug> if a design gap was identified).
+The draft is on disk; edit directly or re-run /ai-sdlc:spec-tasks <slug> (or /ai-sdlc:spec-design <slug> if a design gap was identified).
 ```
 
 ## Constraints
