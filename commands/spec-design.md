@@ -168,7 +168,7 @@ Report:
 design.md:                clean
 ADRs drafted:             draft-totp-kms.md (1)
 Subagent dispatched:      yes (codebase survey, <N> findings)   |   no (greenfield/simple)
-Ready for /ai-sdlc:spec-tasks.
+Ready for /ai-sdlc:spec-tasks <slug>.
 ```
 
 If the review gate did not pass after 2 repair passes, write **nothing** and report:
@@ -177,7 +177,7 @@ If the review gate did not pass after 2 repair passes, write **nothing** and rep
 Design refinement halted with unresolved issues:
   - <issue 1, with file:line or section>
   - <issue 2>
-Resolve and re-run /ai-sdlc:spec-design (or /ai-sdlc:spec-requirements if a spec gap was identified).
+Resolve and re-run /ai-sdlc:spec-design <slug> (or /ai-sdlc:spec-requirements <slug> if a spec gap was identified).
 ```
 
 ## Constraints

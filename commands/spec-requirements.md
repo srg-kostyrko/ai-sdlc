@@ -147,7 +147,7 @@ proposal.md:                   clean
 specs/<cap>/delta.md:          clean (N requirements, M terms)
 specs/<cap>/delta.md:          clean (N requirements, M terms)
 Capabilities touched:          auth, notifications
-Ready for /ai-sdlc:spec-design.
+Ready for /ai-sdlc:spec-design <slug>.
 ```
 
 If Step 8 did not pass, write **nothing** and report:
@@ -156,7 +156,7 @@ If Step 8 did not pass, write **nothing** and report:
 Refinement halted with unresolved issues:
   - <issue 1, with file:line>
   - <issue 2, with file:line>
-Resolve and re-run /ai-sdlc:spec-requirements.
+Resolve and re-run /ai-sdlc:spec-requirements <slug>.
 ```
 
 ## Constraints

@@ -131,7 +131,7 @@ Created .sdlc/changes/<slug>/
   tasks.md                            skeleton
 
 Slug not what you wanted? Rename with `mv .sdlc/changes/<slug>/ .sdlc/changes/<new-slug>/` before running the next command.
-Next: /ai-sdlc:spec-requirements to interview, draft requirements, and seed the first capability delta.
+Next: /ai-sdlc:spec-requirements <slug> to interview, draft requirements, and seed the first capability delta.
 ```
 
 ## Constraints

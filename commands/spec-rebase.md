@@ -77,9 +77,9 @@ Rebase complete for <slug>:
   Conflicts resolved:
     specs/auth/delta.md: req-totp-enrollment  ADDED → MODIFIED
     specs/auth/delta.md: req-old-totp        MODIFIED → ADDED (new slug: req-old-totp-v2)
-  Validation rows affected: 3 (run /ai-sdlc:spec-validate to refresh)
+  Validation rows affected: 3 (run /ai-sdlc:spec-validate <slug> to refresh)
 
-Re-run /ai-sdlc:spec-archive when ready.
+Re-run /ai-sdlc:spec-archive <slug> when ready.
 ```
 
 If any conflicts remain unresolved (user deferred the choice), list them and stop without claiming success.

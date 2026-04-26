@@ -99,7 +99,7 @@ If implementation completed without errors AND no test added or modified by this
 If either condition failed (implementation raised an exception, or a touched test is red), **leave the box unticked** and report what blocked the tick.
 
 Validation rows are the contract for "requirements satisfied," not this checkbox. The checkbox is bookkeeping for "this slice has been implemented." If review of the diff reveals issues, the user can:
-- Re-run `/ai-sdlc:spec-impl-task <id>` to re-implement (gate allows re-runs; the box stays ticked or re-ticks).
+- Re-run `/ai-sdlc:spec-impl-task <id> <slug>` to re-implement (gate allows re-runs; the box stays ticked or re-ticks).
 - Or ask Claude (in conversation) to untick the box and revise.
 
 ## Step 6.5 — Commit the slice
@@ -147,5 +147,5 @@ Diffs and added/changed test files are intentionally not enumerated — the user
 - Never tick a manual validation row (`_Evidence:_ manual ...`) automatically. Manual rows always require `_Approved:_ <author> <date>`.
 - Never invent a test reference. Only fill `_Evidence:_ test://...` when the test actually exists in the codebase and demonstrates the scenario or criterion.
 - Only modify validation rows whose requirement is in this task's `_Requirements:_`. Rows for other requirements belong to other slices.
-- Never modify deltas, design, proposal, or living specs from this command. The slice writes code; if you discover a real spec error mid-implementation, stop and ask the user to revise via `/ai-sdlc:spec-requirements` or `/ai-sdlc:spec-design`.
+- Never modify deltas, design, proposal, or living specs from this command. The slice writes code; if you discover a real spec error mid-implementation, stop and ask the user to revise via `/ai-sdlc:spec-requirements <slug>` or `/ai-sdlc:spec-design <slug>`.
 - Never run with `--no-verify`, skip tests, or bypass commit hooks.

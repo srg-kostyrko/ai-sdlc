@@ -47,7 +47,7 @@ If any check fails, **abort** with a precise report and suggest `/ai-sdlc:spec-r
 /ai-sdlc:spec-archive aborted. Slug conflicts detected:
   specs/auth/delta.md: req-totp-enrollment marked ADDED but already exists in living spec
   specs/auth/delta.md: req-old-totp marked MODIFIED but does not exist in living spec
-Run /ai-sdlc:spec-rebase to reconcile.
+Run /ai-sdlc:spec-rebase <slug> to reconcile.
 ```
 
 Do not partially apply. All-or-nothing.

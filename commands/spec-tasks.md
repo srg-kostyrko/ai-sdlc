@@ -115,7 +115,7 @@ Report:
 tasks.md:                    clean (<N> tasks across <M> groups)
 Capabilities covered:        auth, notifications
 Requirements covered:        <N>/<N> ADDED/MODIFIED  (no orphans)
-Ready for /ai-sdlc:spec-validate.
+Ready for /ai-sdlc:spec-validate <slug>.
 ```
 
 If the review gate did not pass after 2 repair passes, write **nothing** and report:
@@ -124,7 +124,7 @@ If the review gate did not pass after 2 repair passes, write **nothing** and rep
 Task refinement halted with unresolved issues:
   - <issue 1>
   - <issue 2>
-Resolve and re-run /ai-sdlc:spec-tasks (or /ai-sdlc:spec-design if a design gap was identified).
+Resolve and re-run /ai-sdlc:spec-tasks <slug> (or /ai-sdlc:spec-design <slug> if a design gap was identified).
 ```
 
 ## Constraints

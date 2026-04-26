@@ -102,9 +102,9 @@ validation.md:               written (<N> rows)
   Stale rows resolved:       <count>   (dropped: <N>, restored: <N>, kept-custom: <N>)
 
 Next:
-  - Tasks unticked: run /ai-sdlc:spec-impl-task <id> for each. The slice records test evidence and ticks green rows.
-  - Tasks ticked, rows still empty: fill _Evidence:_ by hand (manual rows need _Approved:_), or re-run /ai-sdlc:spec-impl-task <id> if a test now covers the row.
-  - All rows green: run /ai-sdlc:spec-review to audit before /ai-sdlc:spec-archive.
+  - Tasks unticked: run /ai-sdlc:spec-impl-task <id> <slug> for each. The slice records test evidence and ticks green rows.
+  - Tasks ticked, rows still empty: fill _Evidence:_ by hand (manual rows need _Approved:_), or re-run /ai-sdlc:spec-impl-task <id> <slug> if a test now covers the row.
+  - All rows green: run /ai-sdlc:spec-review <slug> to audit before /ai-sdlc:spec-archive <slug>.
 ```
 
 If stale rows remain unresolved (user deferred decisions), write **nothing** and report:

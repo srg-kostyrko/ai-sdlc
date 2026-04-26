@@ -159,11 +159,11 @@ Top findings:
   <tag> — <req-slug> / <file:line>
 
 Next:
-  GO     → run /ai-sdlc:spec-archive when ready.
-  NO-GO  → resolve and re-run /ai-sdlc:spec-review:
-            FIX-BUG / FIX-MISMATCH → fix code, then /ai-sdlc:spec-impl-task <id> or direct edits.
-            DESIGN-GAP             → revise via /ai-sdlc:spec-design.
-            SPEC-GAP               → clarify via /ai-sdlc:spec-requirements.
+  GO     → run /ai-sdlc:spec-archive <slug> when ready.
+  NO-GO  → resolve and re-run /ai-sdlc:spec-review <slug>:
+            FIX-BUG / FIX-MISMATCH → fix code, then /ai-sdlc:spec-impl-task <id> <slug> or direct edits.
+            DESIGN-GAP             → revise via /ai-sdlc:spec-design <slug>.
+            SPEC-GAP               → clarify via /ai-sdlc:spec-requirements <slug>.
 ```
 
 ## Constraints
