@@ -11,7 +11,7 @@ User input: $ARGUMENTS
 
 - `seed` (optional): the full `$ARGUMENTS`, surrounding quotes stripped. Used only as a phrasing hint in the interview; never written verbatim to disk.
 
-No slug is taken from arguments. The slug is derived after the interview (Step 4) and confirmed by the user.
+No slug is taken from arguments. The slug is derived after the interview (Step 4) and reported back to the user; rename with `mv` if it's wrong.
 
 ## Step 2 — Pre-flight
 
@@ -83,25 +83,18 @@ The user named a solution but not the underlying motivation. Help them surface i
 
 4. If the user rejects all candidates and still cannot articulate a motivation, stop and tell them `/ai-sdlc:spec-propose` needs a concrete motivation — do not seed `## Why` with a TODO.
 
-## Step 4 — Propose change slug
+## Step 4 — Derive change slug
 
-Derive a candidate slug from the confirmed motivation (Q1 answer or Step 3a selection):
+Derive the slug from the confirmed motivation (Q1 answer or Step 3a selection):
 - Distill the change into a 2–4 word noun phrase grounded in the motivation.
 - Lowercase + dashes only. Must match `^[a-z0-9][a-z0-9-]*$`.
 - Avoid generic prefixes (`add-`, `fix-`, `update-`) unless the change is genuinely of that shape and no more specific phrasing applies.
 
-Run collision checks on the candidate:
-- `.sdlc/changes/<candidate>/` must not exist.
-- `.sdlc/changes/archive/` must not contain any folder ending with `-<candidate>`.
+Run collision checks:
+- `.sdlc/changes/<slug>/` must not exist.
+- `.sdlc/changes/archive/` must not contain any folder ending with `-<slug>`.
 
-Present to the user:
-
-```
-Proposed slug: <candidate>
-Accept, or name a different slug.
-```
-
-If the user supplies an override: validate against the regex and re-run the collision checks. If a collision is found (active or archived), report it and ask for another. Only proceed once a clean slug is confirmed.
+If a collision is hit, append a short disambiguating suffix grounded in the motivation (e.g. `-v2`, or a more specific noun) and re-run the checks. No interactive confirmation — the slug is surfaced in Step 7's report, and the user can rename the folder with `mv` before any other command references it.
 
 ## Step 5 — Create the change folder
 
@@ -137,6 +130,7 @@ Created .sdlc/changes/<slug>/
   design.md                           skeleton
   tasks.md                            skeleton
 
+Slug not what you wanted? Rename with `mv .sdlc/changes/<slug>/ .sdlc/changes/<new-slug>/` before running the next command.
 Next: /ai-sdlc:spec-requirements to interview, draft requirements, and seed the first capability delta.
 ```
 
@@ -144,7 +138,7 @@ Next: /ai-sdlc:spec-requirements to interview, draft requirements, and seed the 
 
 - Never write to `.sdlc/specs/`.
 - Never overwrite an existing change folder.
-- Slug is always derived and confirmed in Step 4 — never taken from `$ARGUMENTS`.
+- Slug is derived from the motivation in Step 4 — never taken from `$ARGUMENTS`, never interactively confirmed. The user renames with `mv` if the derived slug is wrong.
 - Do not create `specs/` here. The first capability delta is seeded by `/ai-sdlc:spec-requirements`.
 - `## Why` is always user-confirmed: either reused from conversation context and confirmed in Step 3.0, answered via Q1, or a candidate motivation the user accepted/edited in Step 3a. No fabricated motivation, no TODO.
 - `## What Changes`, `## Scope`, `## Rollout`, design content, task breakdowns, capability decisions, and the first requirement are deferred to their own commands. Do not pre-fill them here.
