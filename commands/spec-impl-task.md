@@ -108,13 +108,23 @@ If Step 6 ticked the task AND there are uncommitted changes, create one commit. 
 
 Stage only files this task touched: code, tests, `validation.md` updates, the `tasks.md` tick. Use `git add <path> <path> ...` with explicit paths — never `git add -A` or `git add .`. (If the user had WIP in a touched file, it folds into this commit; that is the user's responsibility to manage before invoking the command.)
 
-Commit message — use a HEREDOC, subject = task title verbatim:
+Commit message — use a HEREDOC. Subject follows Conventional Commits with the change slug as the scope: `<type>(<slug>): <task title>`.
+
+Pick `<type>` from what the slice actually did:
+- `feat` — adds new behavior or capability (default for new requirements).
+- `fix` — corrects broken behavior (typical when addressing `FIX-BUG` findings).
+- `refactor` — restructures without changing behavior.
+- `test` — test-only changes.
+- `docs` — documentation-only changes.
+- `chore` — tooling, build, or maintenance with no behavior change.
+
+If the task title is already imperative (e.g. "Add X", "Fix Y"), keep it as-is after the prefix; lowercase the leading verb so the subject reads naturally.
 
 ```
 git commit -m "$(cat <<'EOF'
-<task title>
+<type>(<slug>): <task title>
 
-Implements <slug> task <id>. Satisfies <req-slug>[, <req-slug>...].
+Implements task <id>. Satisfies <req-slug>[, <req-slug>...].
 
 <optional: 1–2 lines on approach if the diff alone isn't self-explanatory>
 EOF
